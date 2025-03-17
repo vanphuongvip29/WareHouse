@@ -1,0 +1,20 @@
+# version: '3.8'
+
+services:
+  mysql:
+    container_name: db_container
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: 29012001
+      MYSQL_DATABASE: dbwarehouse
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+volumes:
+  mysql_data: # Thêm dòng này để định nghĩa volume mysql_data
+
+# docker ps
+# docker-compose up -d
+# docker logs db_container
+# docker restart db_container
