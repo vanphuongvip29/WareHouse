@@ -4,6 +4,7 @@ import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { User } from './users/entities/user.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AuthsModule } from './auths/auths.module';
 
 @Module({
   imports: [
@@ -18,7 +19,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
     synchronize: true, // Chỉ sử dụng trong môi trường phát triển
     autoLoadEntities: true,
   }),
-    UsersModule,],
+    UsersModule,
+    AuthsModule,],
   controllers: [AppController],
   providers: [AppService],
 })

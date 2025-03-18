@@ -11,7 +11,7 @@ export class User {
   userName: string;
 
   @ApiProperty({ example: 'admin@example.com' })
-  @Column()
+  @Column({ unique: true }) // Đảm bảo email là duy nhất
   email: string;
 
   @Column()
