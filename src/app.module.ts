@@ -5,23 +5,32 @@ import { UsersModule } from './users/users.module';
 import { User } from './users/entities/user.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthsModule } from './auths/auths.module';
+import { APP_GUARD } from '@nestjs/core';
+import { JwtAuthGuard } from './auths/passport/jwt-auth.guard';
 
 @Module({
   imports: [
     TypeOrmModule.forRoot({
-    type: 'mysql',
-    host: 'localhost', // Hoặc địa chỉ IP của máy chủ MySQL
-    port: 3307, // Hoặc cổng MySQL của bạn
-    username: 'root',
-    password: '29012001',
-    database: 'dbwarehouse',
-    entities: [User], // Đường dẫn đến các entity của bạn
-    synchronize: true, // Chỉ sử dụng trong môi trường phát triển
-    autoLoadEntities: true,
-  }),
+      type: 'mysql',
+      host: 'localhost', // Hoặc địa chỉ IP của máy chủ MySQL
+      port: 3307, // Hoặc cổng MySQL của bạn
+      username: 'root',
+      password: '29012001',
+      database: 'dbwarehouse',
+      entities: [User], // Đường dẫn đến các entity của bạn
+      synchronize: true, // Chỉ sử dụng trong môi trường phát triển
+      autoLoadEntities: true,
+    }),
     UsersModule,
-    AuthsModule,],
+    AuthsModule,
+  ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
+  ],
 })
 export class AppModule {}

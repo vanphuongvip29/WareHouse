@@ -17,11 +17,11 @@ export class User {
   @Column()
   passWord: string;
 
-  @ApiProperty({example: 'Admin'})
+  @ApiProperty({ example: 'Admin' })
   @Column({ nullable: true })
   firstName: string;
 
-  @ApiProperty({example: 'Manager'})
+  @ApiProperty({ example: 'Manager' })
   @Column({ nullable: true })
   lastName: string;
 
@@ -31,21 +31,25 @@ export class User {
   @Column({ default: false })
   isActive: boolean;
 
-  @Column({default: 'User'})
+  @Column({ default: 'User' })
   role: string;
 
-  @Column({default: 'Local'})
+  @Column({ default: 'Local' })
   accountType: string;
 
-  @Column({nullable: true})
+  @Column({ nullable: true })
   codeId: string;
 
-  @Column({nullable: true})
+  @Column({ nullable: true })
   codeExpired: Date;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP', onUpdate: 'CURRENT_TIMESTAMP' })
+  @Column({
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+    onUpdate: 'CURRENT_TIMESTAMP',
+  })
   updatedAt: Date;
 }
