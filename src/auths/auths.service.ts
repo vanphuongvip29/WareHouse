@@ -11,15 +11,20 @@ export class AuthsService {
     private jwtService: JwtService
   ) {}
 
-  async signIn(email: string, pass: string): Promise<any> {
+  async validateUser(email: string, pass: string): Promise<any> {
     const user = await this.usersService.findUserByEmail(email);
     const isValidPassword = await comparePasswordUtil(pass, user.passWord)
-    if (!isValidPassword) {
-      throw new UnauthorizedException("Email/Password không đúng");
-    }
-    const payload = { sub: user.id, email: user.email };
+
+    if(!user || !isValidPassword)
+      return null
+
+    return user;
+  }
+
+  async login(user: any) {
+    const payload = { email: user.email, userName: user.userName, lastName: user.lastName };
     return {
-      access_token: await this.jwtService.signAsync(payload),
+      access_token: this.jwtService.sign(payload),
     };
   }
 }
