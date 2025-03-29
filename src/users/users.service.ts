@@ -11,6 +11,9 @@ import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import { UserResponseDto } from './dto/respone-user.dto';
 import { hashPasswordUtil } from 'src/utils/bcrypt';
+import { CreateAuthDto } from 'src/auths/dto/create-auth.dto';
+import { v4 as uuidv4 } from 'uuid';
+import dayjs from 'dayjs';
 
 @Injectable()
 export class UsersService {
@@ -84,5 +87,38 @@ export class UsersService {
     }
     const result = await this.usersRepository.remove(user);
     return { status: HttpStatus.NOT_FOUND, 'đã xóa thành công': result };
+  }
+
+  async registerUser(registerDto: CreateAuthDto) {
+    const { userName, email, passWord, firstName, lastName } = registerDto;
+
+    //check email
+    const isExist = await this.checkEmailExists(email);
+    if (isExist) {
+      throw new BadRequestException(`Email đã tồn tại: ${email}`);
+    }
+
+    // hash password
+    const hashPass = await hashPasswordUtil(passWord);
+    const user = await this.usersRepository.create({
+      userName,
+      email,
+      passWord: hashPass,
+      firstName,
+      lastName,
+      isActive: false,
+      codeId: uuidv4(),
+      codeExpired: dayjs().add(1, 'minutes').format('YYYY-MM-DD HH:mm:ss'),
+    });
+
+    const savedUser = await this.usersRepository.save(user);
+
+    // Tạo đối tượng UserResponseDto với các trường mong muốn
+    const userResponse = new UserResponseDto();
+    userResponse.id = savedUser.id;
+    userResponse.userName = savedUser.userName;
+    userResponse.email = savedUser.email;
+
+    return userResponse;
   }
 }
