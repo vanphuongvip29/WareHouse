@@ -14,12 +14,14 @@ import { hashPasswordUtil } from 'src/utils/bcrypt';
 import { CreateAuthDto } from 'src/auths/dto/create-auth.dto';
 import { v4 as uuidv4 } from 'uuid';
 import dayjs from 'dayjs';
+import { MailerService } from '@nestjs-modules/mailer';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
+    private readonly mailerService: MailerService,
   ) {}
 
   // trả về true nếu email đã tồn tại và false ngược lại.
@@ -100,24 +102,38 @@ export class UsersService {
 
     // hash password
     const hashPass = await hashPasswordUtil(passWord);
-    const user = await this.usersRepository.create({
+
+    const codeId = uuidv4();
+
+    const user = await this.usersRepository.save({
       userName,
       email,
       passWord: hashPass,
       firstName,
       lastName,
       isActive: false,
-      codeId: uuidv4(),
-      codeExpired: dayjs().add(1, 'minutes').format('YYYY-MM-DD HH:mm:ss'),
+      codeId: codeId,
+      // codeExpired: dayjs().add(5, 'minutes').format('YYYY-MM-DD HH:mm:ss'),
+      codeExpired: dayjs().add(30, 'seconds').format('YYYY-MM-DD HH:mm:ss'),
     });
 
-    const savedUser = await this.usersRepository.save(user);
+    // send email
+    this.mailerService.sendMail({
+      to: user.email, // list of receivers
+      // from: 'noreply@nestjs.com', // sender address
+      subject: 'Acctive your account at @VP✔', // Subject line
+      template: 'register',
+      context: {
+        name: user?.userName ?? user.email,
+        activationCode: codeId,
+      },
+    });
 
     // Tạo đối tượng UserResponseDto với các trường mong muốn
     const userResponse = new UserResponseDto();
-    userResponse.id = savedUser.id;
-    userResponse.userName = savedUser.userName;
-    userResponse.email = savedUser.email;
+    userResponse.id = user.id;
+    userResponse.userName = user.userName;
+    userResponse.email = user.email;
 
     return userResponse;
   }
