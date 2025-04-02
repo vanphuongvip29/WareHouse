@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { comparePasswordUtil } from 'src/utils/bcrypt';
 import { JwtService } from '@nestjs/jwt';
@@ -30,6 +34,13 @@ export class AuthsService {
       userName: user.userName,
       lastName: user.lastName,
     };
+
+    // check active của user
+    const checkUser = await this.usersService.findUserByEmail(user.email);
+    if (!checkUser.isActive) {
+      throw new BadRequestException('Vui lòng kích hoạt tài khoản');
+    }
+
     return {
       access_token: this.jwtService.sign(payload),
     };
