@@ -10,7 +10,11 @@ import {
   Request,
 } from '@nestjs/common';
 import { AuthsService } from './auths.service';
-import { CreateAuthDto } from './dto/create-auth.dto';
+import {
+  ChangePassword,
+  CodeAuthDto,
+  CreateAuthDto,
+} from './dto/create-auth.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { LocalAuthGuard } from './passport/local-auth.guard';
 import { JwtAuthGuard } from './passport/jwt-auth.guard';
@@ -36,6 +40,31 @@ export class AuthsController {
   @Post('register')
   register(@Body() registerDto: CreateAuthDto) {
     return this.authsService.register(registerDto);
+  }
+
+  // active account
+  @Public()
+  @Post('check-code')
+  checkCode(@Body() codeAuthDto: CodeAuthDto) {
+    return this.authsService.checkCode(codeAuthDto);
+  }
+
+  @Post('retry-code')
+  @Public()
+  retryCodeId(@Body('email') email: string) {
+    return this.authsService.retryCodeId(email);
+  }
+
+  @Public()
+  @Patch('change-password')
+  changePassword(@Body() changePassword: ChangePassword) {
+    return this.authsService.changePassword(changePassword);
+  }
+
+  @Public()
+  @Patch('forgot-password')
+  forgotPassword(@Body('email') email: string) {
+    return this.authsService.forgotPassword(email);
   }
 
   @Public()

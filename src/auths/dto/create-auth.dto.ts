@@ -28,3 +28,28 @@ export class CreateAuthDto {
   @IsOptional()
   accountType: string;
 }
+
+export class CodeAuthDto {
+  @IsNotEmpty({ message: 'email không được để trống' })
+  email: string;
+
+  @IsNotEmpty({ message: 'code không được để trống' })
+  codeId: string;
+}
+
+export class ChangePassword {
+  @IsNotEmpty({ message: 'email không được để trống' })
+  email: string;
+
+  @IsNotEmpty({ message: 'password cũ mới không được để trống' })
+  passWordOld: string;
+
+  @IsNotEmpty({ message: 'password mới không được để trống' })
+  passWordNew: string;
+
+  @IsNotEmpty({ message: 'confirmPassword không được để trống' })
+  confirmPassword: string;
+
+  // @IsNotEmpty({ message: 'codeId không được để trống' })
+  // codeId: string;
+}

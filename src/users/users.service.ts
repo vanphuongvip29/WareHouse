@@ -10,8 +10,12 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import { UserResponseDto } from './dto/respone-user.dto';
-import { hashPasswordUtil } from 'src/utils/bcrypt';
-import { CreateAuthDto } from 'src/auths/dto/create-auth.dto';
+import { comparePasswordUtil, hashPasswordUtil } from 'src/utils/bcrypt';
+import {
+  ChangePassword,
+  CodeAuthDto,
+  CreateAuthDto,
+} from 'src/auths/dto/create-auth.dto';
 import { v4 as uuidv4 } from 'uuid';
 import dayjs from 'dayjs';
 import { MailerService } from '@nestjs-modules/mailer';
@@ -114,7 +118,7 @@ export class UsersService {
       isActive: false,
       codeId: codeId,
       // codeExpired: dayjs().add(5, 'minutes').format('YYYY-MM-DD HH:mm:ss'),
-      codeExpired: dayjs().add(30, 'seconds').format('YYYY-MM-DD HH:mm:ss'),
+      codeExpired: dayjs().add(60, 'seconds').format('YYYY-MM-DD HH:mm:ss'),
     });
 
     // send email
@@ -137,4 +141,122 @@ export class UsersService {
 
     return userResponse;
   }
+
+  // active account
+  async handleActive(codeAuthDto: CodeAuthDto) {
+    const user = await this.usersRepository.findOne({
+      where: {
+        email: codeAuthDto.email,
+        codeId: codeAuthDto.codeId,
+      },
+    });
+    if (!user) {
+      throw new BadRequestException('Thông tin User không tìm thấy');
+    }
+
+    // check codeExpired code
+    const isBeforeCheck = dayjs().isBefore(user.codeExpired);
+
+    if (isBeforeCheck) {
+      //valid => update user
+      await this.usersRepository.save({ ...user, isActive: true });
+      return { isBeforeCheck };
+    } else {
+      throw new BadRequestException('Mã code không hợp lệ hoặc đã hết hạn');
+    }
+  }
+
+  async retryCodeId(email: string) {
+    //check email
+    const user = await this.usersRepository.findOne({ where: { email } });
+
+    if (!user) {
+      throw new BadRequestException('Tài khoản không tồn tại');
+    }
+    if (user.isActive) {
+      throw new BadRequestException('Tài khoản đã được kích hoạt');
+    }
+
+    //send Email
+    const codeId = uuidv4();
+
+    //update user
+    await this.usersRepository.save({
+      ...user,
+      codeId: codeId,
+      codeExpired: dayjs().add(60, 'seconds').format('YYYY-MM-DD HH:mm:ss'),
+    });
+
+    this.mailerService.sendMail({
+      to: user.email, // list of receivers
+      // from: 'noreply@nestjs.com', // sender address
+      subject: 'Acctive your account at @VP✔', // Subject line
+      template: 'register',
+      context: {
+        name: user?.userName ?? user.email,
+        activationCode: codeId,
+      },
+    });
+    return { email: user.email };
+  }
+
+  changePasswordUser = async (changePassword: ChangePassword) => {
+    const user = await this.usersRepository.findOne({
+      where: { email: changePassword.email },
+    });
+
+    if (!user) {
+      throw new BadRequestException('Tài khoản không tồn tại');
+    }
+
+    const isValidPassword = await comparePasswordUtil(
+      changePassword.passWordOld,
+      user.passWord,
+    );
+
+    if (!isValidPassword) {
+      throw new BadRequestException('Mật khẩu cũ không đúng');
+    }
+
+    if (changePassword.confirmPassword !== changePassword.passWordNew) {
+      throw new BadRequestException(
+        'Mật khẩu/xác nhận mật khẩu không chính xác.',
+      );
+    }
+    const newPassword = await hashPasswordUtil(changePassword.passWordNew);
+    await this.usersRepository.save({ ...user, passWord: newPassword });
+
+    return 'Thay đổi mật khẩu thành công !!!';
+  };
+
+  forgetPassword = async (email: string) => {
+    const user = await this.usersRepository.findOne({ where: { email } });
+
+    if (!user) {
+      throw new BadRequestException('Tài khoản không tồn tại');
+    }
+
+    //send email
+    const codeId = uuidv4();
+
+    this.mailerService.sendMail({
+      to: user.email, // list of receivers
+      // from: 'noreply@nestjs.com', // sender address
+      subject: 'Forgot password your account at @VP✔', // Subject line
+      template: 'register',
+      context: {
+        name: user?.userName ?? user.email,
+        activationCode: codeId,
+      },
+    });
+
+    //update user
+    await this.usersRepository.save({
+      ...user,
+      codeId: codeId,
+      codeExpired: dayjs().add(60, 'minutes').format('YYYY-MM-DD HH:mm:ss'),
+    });
+
+    return { email: user.email };
+  };
 }
