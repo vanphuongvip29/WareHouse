@@ -9,6 +9,10 @@ import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './auths/passport/jwt-auth.guard';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
+import { CategoriesModule } from './categories/categories.module';
+import { Category } from './categories/entities/category.entity';
+import { ProductsModule } from './products/products.module';
+import { Product } from './products/entities/product.entity';
 
 @Module({
   imports: [
@@ -19,10 +23,13 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handleba
       username: 'root',
       password: '29012001',
       database: 'dbwarehouse',
-      entities: [User], // Đường dẫn đến các entity của bạn
+      entities: [User, Category, Product], // Đường dẫn đến các entity của bạn
       synchronize: true, // Chỉ sử dụng trong môi trường phát triển
       autoLoadEntities: true,
     }),
+
+    TypeOrmModule.forFeature([User, Category, Product]),
+
     UsersModule,
     AuthsModule,
     MailerModule.forRoot({
@@ -51,6 +58,8 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handleba
         },
       },
     }),
+    CategoriesModule,
+    ProductsModule,
   ],
   controllers: [AppController],
   providers: [
