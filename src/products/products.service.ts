@@ -43,7 +43,7 @@ export class ProductsService {
     // Tạo đối tượng Product
     const createProduct = this.productRepository.create({
       ...createProductDto,
-      category: categoryId,
+      categoryID: categoryId,
     });
 
     return this.productRepository.save(createProduct);
@@ -55,7 +55,7 @@ export class ProductsService {
 
   async findID(id: number) {
     const findPro = await this.productRepository.findOne({
-      where: { id },
+      where: { productID: id },
       relations: ['category'],
     });
 
@@ -85,7 +85,7 @@ export class ProductsService {
 
     //cate
 
-    let cateID = findProId.category; // Giữ nguyên category hiện tại nếu không có categoryID mới
+    let cateID = findProId.categoryID; // Giữ nguyên category hiện tại nếu không có categoryID mới
 
     // Kiểm tra nếu categoryID được cung cấp
     if (updateProductDto.categoryID) {
@@ -109,7 +109,7 @@ export class ProductsService {
       unit: updateProductDto.unit,
       importPrice: updateProductDto.importPrice,
       salePrice: updateProductDto.salePrice,
-      category: cateID,
+      categoryID: cateID,
     });
 
     return this.productRepository.save(createProduct);

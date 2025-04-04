@@ -4,11 +4,11 @@ import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 @Entity()
 export class Category {
   @PrimaryGeneratedColumn()
-  id: number;
+  categoryID: number;
 
   @Column({ unique: true })
   categoryName: string;
 
-  @OneToMany(() => Product, (product) => product.category)
-  products: Product[];
+  @OneToMany(() => Product, (product) => product.categoryID)
+  productID: Product[];
 }

@@ -13,6 +13,18 @@ import { CategoriesModule } from './categories/categories.module';
 import { Category } from './categories/entities/category.entity';
 import { ProductsModule } from './products/products.module';
 import { Product } from './products/entities/product.entity';
+import { ImportwarehouseModule } from './importwarehouse/importwarehouse.module';
+import { ImportdetailwarehosueModule } from './importdetailwarehosue/importdetailwarehosue.module';
+import { Importwarehouse } from './importwarehouse/entities/importwarehouse.entity';
+import { SuppliersModule } from './suppliers/suppliers.module';
+import { ExportwarehouseModule } from './exportwarehouse/exportwarehouse.module';
+import { ExportdetailwarehouseModule } from './exportdetailwarehouse/exportdetailwarehouse.module';
+import { CustomersModule } from './customers/customers.module';
+import { InventoryModule } from './inventory/inventory.module';
+import { ExportWarehouse } from './exportwarehouse/entities/exportwarehouse.entity';
+import { ExportDetailWarehouse } from './exportdetailwarehouse/entities/exportdetailwarehouse.entity';
+import { Customer } from './customers/entities/customer.entity';
+import { Inventory } from './inventory/entities/inventory.entity';
 
 @Module({
   imports: [
@@ -23,12 +35,32 @@ import { Product } from './products/entities/product.entity';
       username: 'root',
       password: '29012001',
       database: 'dbwarehouse',
-      entities: [User, Category, Product], // Đường dẫn đến các entity của bạn
+      entities: [
+        User,
+        Category,
+        Product,
+        Importwarehouse,
+        ImportdetailwarehosueModule,
+        ExportWarehouse,
+        ExportDetailWarehouse,
+        Customer,
+        Inventory,
+      ], // Đường dẫn đến các entity của bạn
       synchronize: true, // Chỉ sử dụng trong môi trường phát triển
       autoLoadEntities: true,
     }),
 
-    TypeOrmModule.forFeature([User, Category, Product]),
+    TypeOrmModule.forFeature([
+      User,
+      Category,
+      Product,
+      Importwarehouse,
+      ImportdetailwarehosueModule,
+      ExportWarehouse,
+      ExportDetailWarehouse,
+      Customer,
+      Inventory,
+    ]),
 
     UsersModule,
     AuthsModule,
@@ -60,6 +92,13 @@ import { Product } from './products/entities/product.entity';
     }),
     CategoriesModule,
     ProductsModule,
+    ImportwarehouseModule,
+    ImportdetailwarehosueModule,
+    SuppliersModule,
+    ExportwarehouseModule,
+    ExportdetailwarehouseModule,
+    CustomersModule,
+    InventoryModule,
   ],
   controllers: [AppController],
   providers: [
