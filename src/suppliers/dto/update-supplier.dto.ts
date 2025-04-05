@@ -1,4 +1,12 @@
-import { PartialType } from '@nestjs/swagger';
-import { CreateSupplierDto } from './create-supplier.dto';
+import { IsOptional } from 'class-validator';
 
-export class UpdateSupplierDto extends PartialType(CreateSupplierDto) {}
+export class UpdateSupplierDto {
+  @IsOptional()
+  supplierName: string;
+
+  @IsOptional()
+  address: string;
+
+  @IsOptional()
+  phone: string;
+}

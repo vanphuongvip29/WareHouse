@@ -21,7 +21,7 @@ export class Importwarehouse {
   @Column()
   totalAmount: number;
 
-  @Column()
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   importDate: string;
 
   @OneToMany(

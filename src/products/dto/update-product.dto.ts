@@ -2,8 +2,7 @@ import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 import { Category } from 'src/categories/entities/category.entity';
 
 export class UpdateProductDto {
-  @IsString()
-  @IsNotEmpty({ message: 'categoryName không được để trống' })
+  @IsOptional()
   productName: string;
 
   @IsString()

@@ -56,7 +56,7 @@ export class ProductsService {
   async findID(id: number) {
     const findPro = await this.productRepository.findOne({
       where: { productID: id },
-      relations: ['category'],
+      relations: ['categoryID'],
     });
 
     if (!findPro) {
@@ -73,14 +73,21 @@ export class ProductsService {
       throw new BadRequestException('không tìm thấy product ID ');
     }
 
-    const isNameExist = await this.checkNameProExists(
-      updateProductDto.productName,
-    );
+    console.log('findPro:', findProId);
 
-    if (isNameExist) {
-      throw new BadRequestException(
-        `Product Name đã tồn tại bạn vui lòng cập nhật tên khác: ${updateProductDto.productName}`,
+    if (
+      updateProductDto.productName &&
+      findProId.productName != updateProductDto.productName
+    ) {
+      const isNameExist = await this.checkNameProExists(
+        updateProductDto.productName,
       );
+
+      if (isNameExist) {
+        throw new BadRequestException(
+          `Product Name đã tồn tại bạn vui lòng cập nhật tên khác: ${updateProductDto.productName}`,
+        );
+      }
     }
 
     //cate
@@ -98,7 +105,6 @@ export class ProductsService {
       }
     }
 
-    console.log('findPro:', findProId);
     console.log('Category:', cateID);
 
     // Tạo đối tượng Product
