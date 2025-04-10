@@ -1,4 +1,12 @@
-import { PartialType } from '@nestjs/swagger';
-import { CreateExportwarehouseDto } from './create-exportwarehouse.dto';
+import { IsOptional } from 'class-validator';
+import { Customer } from 'src/customers/entities/customer.entity';
 
-export class UpdateExportwarehouseDto extends PartialType(CreateExportwarehouseDto) {}
+export class UpdateExportwarehouseDto {
+  @IsOptional()
+  exportDate: Date;
+  @IsOptional()
+  totalAmount: number;
+
+  @IsOptional()
+  customerID: Customer;
+}

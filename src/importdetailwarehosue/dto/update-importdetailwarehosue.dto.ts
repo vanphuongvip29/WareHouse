@@ -1,4 +1,17 @@
-import { PartialType } from '@nestjs/swagger';
-import { CreateImportdetailwarehosueDto } from './create-importdetailwarehosue.dto';
+import { IsOptional } from 'class-validator';
+import { Importwarehouse } from 'src/importwarehouse/entities/importwarehouse.entity';
+import { Product } from 'src/products/entities/product.entity';
 
-export class UpdateImportdetailwarehosueDto extends PartialType(CreateImportdetailwarehosueDto) {}
+export class UpdateImportdetailwarehosueDto {
+  @IsOptional()
+  quantity: number;
+
+  @IsOptional()
+  importPrice: number;
+
+  @IsOptional()
+  importID: Importwarehouse;
+
+  @IsOptional()
+  productID: Product;
+}

@@ -1,33 +1,52 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { ExportwarehouseService } from './exportwarehouse.service';
 import { CreateExportwarehouseDto } from './dto/create-exportwarehouse.dto';
 import { UpdateExportwarehouseDto } from './dto/update-exportwarehouse.dto';
+import { Public } from 'src/decorator/customize';
 
 @Controller('exportwarehouse')
 export class ExportwarehouseController {
-  constructor(private readonly exportwarehouseService: ExportwarehouseService) {}
+  constructor(
+    private readonly exportwarehouseService: ExportwarehouseService,
+  ) {}
 
   @Post()
+  @Public()
   create(@Body() createExportwarehouseDto: CreateExportwarehouseDto) {
     return this.exportwarehouseService.create(createExportwarehouseDto);
   }
 
   @Get()
+  @Public()
   findAll() {
     return this.exportwarehouseService.findAll();
   }
 
   @Get(':id')
+  @Public()
   findOne(@Param('id') id: string) {
-    return this.exportwarehouseService.findOne(+id);
+    return this.exportwarehouseService.findID(+id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateExportwarehouseDto: UpdateExportwarehouseDto) {
+  @Public()
+  update(
+    @Param('id') id: string,
+    @Body() updateExportwarehouseDto: UpdateExportwarehouseDto,
+  ) {
     return this.exportwarehouseService.update(+id, updateExportwarehouseDto);
   }
 
   @Delete(':id')
+  @Public()
   remove(@Param('id') id: string) {
     return this.exportwarehouseService.remove(+id);
   }

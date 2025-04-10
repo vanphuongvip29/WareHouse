@@ -1,26 +1,79 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateExportwarehouseDto } from './dto/create-exportwarehouse.dto';
 import { UpdateExportwarehouseDto } from './dto/update-exportwarehouse.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { ExportWarehouse } from './entities/exportwarehouse.entity';
+import { Repository } from 'typeorm';
+import { CustomersService } from 'src/customers/customers.service';
 
 @Injectable()
 export class ExportwarehouseService {
-  create(createExportwarehouseDto: CreateExportwarehouseDto) {
-    return 'This action adds a new exportwarehouse';
+  constructor(
+    @InjectRepository(ExportWarehouse)
+    private exportRepository: Repository<ExportWarehouse>,
+    private customerService: CustomersService,
+  ) {}
+
+  async create(createExportwarehouseDto: CreateExportwarehouseDto) {
+    const findCustomer = await this.customerService.findID(
+      +createExportwarehouseDto.customerID,
+    );
+
+    // Tạo đối tượng Product
+    const createExport = this.exportRepository.create({
+      ...createExportwarehouseDto,
+      customerID: findCustomer,
+    });
+    return await this.exportRepository.save(createExport);
   }
 
-  findAll() {
-    return `This action returns all exportwarehouse`;
+  async findAll() {
+    return await this.exportRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} exportwarehouse`;
+  async findID(id: number) {
+    const findExp = await this.exportRepository.findOne({
+      where: { exportID: id },
+    });
+
+    if (!findExp) {
+      throw new NotFoundException('Không tìm thấy xuất');
+    }
+    return findExp;
   }
 
-  update(id: number, updateExportwarehouseDto: UpdateExportwarehouseDto) {
-    return `This action updates a #${id} exportwarehouse`;
+  async update(id: number, updateExportwarehouseDto: UpdateExportwarehouseDto) {
+    const findExport = await this.findID(id);
+
+    let cusID = findExport.customerID; // Giữ nguyên nhà cung cấp hiện tại nếu không có supplierID mới
+
+    // Kiểm tra nếu supplierID được cung cấp
+    if (updateExportwarehouseDto.customerID) {
+      cusID = await this.customerService.findID(
+        +updateExportwarehouseDto.customerID,
+      );
+    }
+
+    const createExport = await this.exportRepository.create({
+      ...findExport,
+      exportDate: updateExportwarehouseDto.exportDate,
+      totalAmount: updateExportwarehouseDto.totalAmount,
+      customerID: cusID,
+    });
+    return await this.exportRepository.save(createExport);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} exportwarehouse`;
+  async remove(id: number) {
+    const exp = await this.exportRepository.findOneBy({ exportID: id });
+    if (!exp) {
+      throw new BadRequestException(`xuất ${id} not found`);
+    }
+    const result = await this.exportRepository.remove(exp);
+    return { status: HttpStatus.NOT_FOUND, 'đã xóa thành công': result };
   }
 }

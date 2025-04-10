@@ -31,7 +31,7 @@ export class CustomersController {
   @Get(':id')
   @Public()
   findOne(@Param('id') id: string) {
-    return this.customersService.findOne(+id);
+    return this.customersService.findID(+id);
   }
 
   @Patch(':id')

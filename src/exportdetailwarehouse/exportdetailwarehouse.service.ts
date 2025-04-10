@@ -1,26 +1,96 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateExportdetailwarehouseDto } from './dto/create-exportdetailwarehouse.dto';
 import { UpdateExportdetailwarehouseDto } from './dto/update-exportdetailwarehouse.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { ExportDetailWarehouse } from './entities/exportdetailwarehouse.entity';
+import { Repository } from 'typeorm';
+import { ExportwarehouseService } from 'src/exportwarehouse/exportwarehouse.service';
+import { ProductsService } from 'src/products/products.service';
 
 @Injectable()
 export class ExportdetailwarehouseService {
-  create(createExportdetailwarehouseDto: CreateExportdetailwarehouseDto) {
-    return 'This action adds a new exportdetailwarehouse';
+  constructor(
+    @InjectRepository(ExportDetailWarehouse)
+    private exportDetailRepository: Repository<ExportDetailWarehouse>,
+    private exportService: ExportwarehouseService,
+    private productsService: ProductsService,
+  ) {}
+  async create(createExportdetailwarehouseDto: CreateExportdetailwarehouseDto) {
+    const findProID = await this.productsService.findID(
+      +createExportdetailwarehouseDto.productID,
+    );
+
+    const findExportID = await this.exportService.findID(
+      +createExportdetailwarehouseDto.exportID,
+    );
+    const createExportDetail = this.exportDetailRepository.create({
+      ...createExportdetailwarehouseDto,
+      exports: findExportID,
+      productID: findProID,
+    });
+    return await this.exportDetailRepository.save(createExportDetail);
   }
 
-  findAll() {
-    return `This action returns all exportdetailwarehouse`;
+  async findAll() {
+    return await this.exportDetailRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} exportdetailwarehouse`;
+  async findID(id: number) {
+    const findExpDetail = await this.exportDetailRepository.findOne({
+      where: { exportDetailID: id },
+    });
+
+    if (!findExpDetail) {
+      throw new NotFoundException('Không tìm thấy xuất');
+    }
+    return findExpDetail;
   }
 
-  update(id: number, updateExportdetailwarehouseDto: UpdateExportdetailwarehouseDto) {
-    return `This action updates a #${id} exportdetailwarehouse`;
+  async update(
+    id: number,
+    updateExportdetailwarehouseDto: UpdateExportdetailwarehouseDto,
+  ) {
+    const findExportDetail = await this.findID(id);
+    let exportID = findExportDetail.exports;
+
+    // Kiểm tra nếu supplierID được cung cấp
+    if (updateExportdetailwarehouseDto.exportID) {
+      exportID = await this.exportService.findID(
+        +updateExportdetailwarehouseDto.exportID,
+      );
+    }
+
+    let productID = findExportDetail.productID;
+    if (updateExportdetailwarehouseDto.productID) {
+      productID = await this.productsService.findID(
+        +updateExportdetailwarehouseDto.productID,
+      );
+    }
+
+    const updateExxportDetail = await this.exportDetailRepository.create({
+      ...findExportDetail,
+      exports: exportID,
+      quantity: updateExportdetailwarehouseDto.quantity,
+      salePrice: updateExportdetailwarehouseDto.salePrice,
+      productID: productID,
+    });
+
+    return await this.exportDetailRepository.save(updateExxportDetail);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} exportdetailwarehouse`;
+  async remove(id: number) {
+    const expDetail = await this.exportDetailRepository.findOneBy({
+      exportDetailID: id,
+    });
+    if (!expDetail) {
+      throw new BadRequestException(`xuất ${id} not found`);
+    }
+    const result = await this.exportDetailRepository.remove(expDetail);
+    return { status: HttpStatus.NOT_FOUND, 'đã xóa thành công': result };
   }
 }

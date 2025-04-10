@@ -9,5 +9,6 @@ import { SuppliersModule } from 'src/suppliers/suppliers.module';
   imports: [TypeOrmModule.forFeature([Importwarehouse]), SuppliersModule],
   controllers: [ImportwarehouseController],
   providers: [ImportwarehouseService],
+  exports: [ImportwarehouseService],
 })
 export class ImportwarehouseModule {}

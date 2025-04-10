@@ -10,5 +10,6 @@ import { Importdetailwarehosue } from 'src/importdetailwarehosue/entities/import
   imports: [TypeOrmModule.forFeature([Product]), CategoriesModule],
   controllers: [ProductsController],
   providers: [ProductsService],
+  exports: [ProductsService],
 })
 export class ProductsModule {}

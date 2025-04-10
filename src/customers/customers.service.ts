@@ -39,7 +39,7 @@ export class CustomersService {
     return await this.customerRepository.find();
   }
 
-  async findOne(id: number) {
+  async findID(id: number) {
     const findCus = await this.customerRepository.findOne({
       where: { customerID: id },
     });
@@ -51,7 +51,7 @@ export class CustomersService {
   }
 
   async update(id: number, updateCustomerDto: UpdateCustomerDto) {
-    const customer = await this.findOne(id);
+    const customer = await this.findID(id);
     if (!customer) {
       throw new NotFoundException('Khách hàng không tồn tại');
     }
