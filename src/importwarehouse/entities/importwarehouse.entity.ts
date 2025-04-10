@@ -14,7 +14,7 @@ export class Importwarehouse {
   @PrimaryGeneratedColumn()
   importID: number;
 
-  @ManyToOne(() => Supplier, (supplier) => supplier.importwarehouse)
+  @ManyToOne(() => Supplier, (supplier) => supplier.importwarehouseID)
   @JoinColumn({ name: 'supplierID' })
   supplierID: Supplier;
 
@@ -28,5 +28,5 @@ export class Importwarehouse {
     () => Importdetailwarehosue,
     (importDetailWarehosue) => importDetailWarehosue.importID,
   )
-  importDetailWarehosue: Importdetailwarehosue[];
+  importDetailWarehosueID: Importdetailwarehosue[];
 }

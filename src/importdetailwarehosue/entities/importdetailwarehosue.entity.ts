@@ -11,7 +11,7 @@ import {
 @Entity()
 export class Importdetailwarehosue {
   @PrimaryGeneratedColumn()
-  ImportDetailID: number;
+  importDetailID: number;
 
   @Column()
   quantity: number;
@@ -21,12 +21,12 @@ export class Importdetailwarehosue {
 
   @ManyToOne(
     () => Importwarehouse,
-    (importWarehouse) => importWarehouse.importDetailWarehosue,
+    (importWarehouse) => importWarehouse.importDetailWarehosueID,
   )
   @JoinColumn({ name: 'importID' })
   importID: Importwarehouse;
 
-  @ManyToOne(() => Product, (product) => product.importDetailProduct)
+  @ManyToOne(() => Product, (product) => product.importDetailProductID)
   @JoinColumn({ name: 'productID' })
   productID: Product; // Định nghĩa mối quan hệ nhiều-một với Product
 }

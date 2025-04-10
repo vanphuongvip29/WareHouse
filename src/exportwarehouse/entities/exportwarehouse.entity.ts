@@ -17,7 +17,7 @@ export class ExportWarehouse {
   @Column()
   exportDate: Date;
 
-  @ManyToOne(() => Customer, (customer) => customer.exports)
+  @ManyToOne(() => Customer, (customer) => customer.exportID)
   @JoinColumn({ name: 'customerID' })
   customerID: Customer;
 
@@ -26,7 +26,7 @@ export class ExportWarehouse {
 
   @OneToMany(
     () => ExportDetailWarehouse,
-    (exportDetailWarehouse) => exportDetailWarehouse.exports,
+    (exportDetailWarehouse) => exportDetailWarehouse.exportID,
   )
-  exportDetails: ExportDetailWarehouse[];
+  exportDetailID: ExportDetailWarehouse[];
 }

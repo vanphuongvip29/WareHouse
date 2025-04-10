@@ -23,5 +23,5 @@ export class Supplier {
     () => Importwarehouse,
     (importwarehouse) => importwarehouse.supplierID,
   )
-  importwarehouse: Importwarehouse[];
+  importwarehouseID: Importwarehouse[];
 }

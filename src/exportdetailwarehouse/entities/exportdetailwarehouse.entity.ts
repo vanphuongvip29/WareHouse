@@ -15,12 +15,12 @@ export class ExportDetailWarehouse {
 
   @ManyToOne(
     () => ExportWarehouse,
-    (exportWarehouse) => exportWarehouse.exportDetails,
+    (exportWarehouse) => exportWarehouse.exportDetailID,
   )
   @JoinColumn({ name: 'exportID' })
-  exports: ExportWarehouse;
+  exportID: ExportWarehouse;
 
-  @ManyToOne(() => Product, (product) => product.exportDetails)
+  @ManyToOne(() => Product, (product) => product.exportDetailID)
   @JoinColumn({ name: 'productID' })
   productID: Product;
 

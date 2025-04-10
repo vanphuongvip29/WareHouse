@@ -43,11 +43,11 @@ export class Product {
     () => Importdetailwarehosue,
     (importDetailProduct) => importDetailProduct.productID,
   )
-  importDetailProduct: Importdetailwarehosue[]; // Định nghĩa mối quan hệ một-nhiều với ImportDetail
+  importDetailProductID: Importdetailwarehosue[]; // Định nghĩa mối quan hệ một-nhiều với ImportDetail
 
   @OneToMany(
     () => ExportDetailWarehouse,
     (exportDetailWarehouse) => exportDetailWarehouse.productID,
   )
-  exportDetails: ExportDetailWarehouse[]; // Định nghĩa mối quan hệ một-nhiều với ExportDetail
+  exportDetailID: ExportDetailWarehouse[]; // Định nghĩa mối quan hệ một-nhiều với ExportDetail
 }

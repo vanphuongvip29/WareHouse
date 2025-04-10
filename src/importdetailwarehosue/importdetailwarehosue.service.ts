@@ -44,7 +44,7 @@ export class ImportdetailwarehosueService {
 
   async findID(id: number) {
     const findImportDetail = await this.importDetailRepository.findOne({
-      where: { ImportDetailID: id },
+      where: { importDetailID: id },
     });
 
     if (!findImportDetail) {

@@ -30,7 +30,7 @@ export class ExportdetailwarehouseService {
     );
     const createExportDetail = this.exportDetailRepository.create({
       ...createExportdetailwarehouseDto,
-      exports: findExportID,
+      exportID: findExportID,
       productID: findProID,
     });
     return await this.exportDetailRepository.save(createExportDetail);
@@ -56,7 +56,7 @@ export class ExportdetailwarehouseService {
     updateExportdetailwarehouseDto: UpdateExportdetailwarehouseDto,
   ) {
     const findExportDetail = await this.findID(id);
-    let exportID = findExportDetail.exports;
+    let exportID = findExportDetail.exportID;
 
     // Kiểm tra nếu supplierID được cung cấp
     if (updateExportdetailwarehouseDto.exportID) {
@@ -74,7 +74,7 @@ export class ExportdetailwarehouseService {
 
     const updateExxportDetail = await this.exportDetailRepository.create({
       ...findExportDetail,
-      exports: exportID,
+      exportID: exportID,
       quantity: updateExportdetailwarehouseDto.quantity,
       salePrice: updateExportdetailwarehouseDto.salePrice,
       productID: productID,

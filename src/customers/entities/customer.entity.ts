@@ -16,5 +16,5 @@ export class Customer {
   phone: string;
 
   @OneToMany(() => ExportWarehouse, (exportEntity) => exportEntity.customerID)
-  exports: ExportWarehouse[];
+  exportID: ExportWarehouse[];
 }
