@@ -40,11 +40,11 @@ export class SuppliersService {
   async findID(id: number) {
     const findSupp = await this.supplierRepository.findOne({
       where: { supplierID: id },
-      relations: ['importwarehouse'],
+      relations: ['importwarehouseID'],
     });
 
     if (!findSupp) {
-      throw new NotFoundException('không tìm thấy nhà cung cấp ');
+      throw new NotFoundException('Không tìm thấy nhà cung cấp');
     }
 
     return findSupp;
@@ -80,10 +80,6 @@ export class SuppliersService {
 
   async remove(id: number) {
     const findSup = await this.findID(id);
-    if (!findSup) {
-      throw new NotFoundException('Không có nhà cung cấp để xóa');
-    }
-
     return await this.supplierRepository.remove(findSup);
   }
 }

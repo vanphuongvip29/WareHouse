@@ -10,6 +10,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Product } from './entities/product.entity';
 import { Repository } from 'typeorm';
 import { CategoriesService } from 'src/categories/categories.service';
+import { SuppliersService } from 'src/suppliers/suppliers.service';
 
 @Injectable()
 export class ProductsService {
@@ -17,6 +18,7 @@ export class ProductsService {
     @InjectRepository(Product)
     private productRepository: Repository<Product>,
     private categoryService: CategoriesService,
+    private supplierService: SuppliersService,
   ) {}
 
   // trả về true nếu categoryName đã tồn tại và false ngược lại.
@@ -32,18 +34,23 @@ export class ProductsService {
 
     if (isNameExist) {
       throw new BadRequestException(
-        `Category Name đã tồn tại: ${createProductDto.productName}`,
+        `tên sản phẩm đã tồn tại: ${createProductDto.productName}`,
       );
     }
 
-    const categoryId = await this.categoryService.findOne(
+    const categoryId = await this.categoryService.findID(
       +createProductDto.categoryID,
+    );
+
+    const supplierId = await this.supplierService.findID(
+      +createProductDto.supplierID,
     );
 
     // Tạo đối tượng Product
     const createProduct = this.productRepository.create({
       ...createProductDto,
       categoryID: categoryId,
+      supplierID: supplierId,
     });
 
     return this.productRepository.save(createProduct);
@@ -60,7 +67,7 @@ export class ProductsService {
     });
 
     if (!findPro) {
-      throw new BadGatewayException('không tìm thấy product id');
+      throw new BadGatewayException('Không tìm thấy sản phẩm');
     }
 
     return findPro;
@@ -68,12 +75,6 @@ export class ProductsService {
 
   async update(id: number, updateProductDto: UpdateProductDto) {
     const findProId = await this.findID(id);
-
-    if (!findProId) {
-      throw new BadRequestException('không tìm thấy product ID ');
-    }
-
-    console.log('findPro:', findProId);
 
     if (
       updateProductDto.productName &&
@@ -85,7 +86,7 @@ export class ProductsService {
 
       if (isNameExist) {
         throw new BadRequestException(
-          `Product Name đã tồn tại bạn vui lòng cập nhật tên khác: ${updateProductDto.productName}`,
+          `Tên sản phẩm đã tồn tại bạn vui lòng cập nhật tên khác: ${updateProductDto.productName}`,
         );
       }
     }
@@ -96,16 +97,13 @@ export class ProductsService {
 
     // Kiểm tra nếu categoryID được cung cấp
     if (updateProductDto.categoryID) {
-      cateID = await this.categoryService.findOne(+updateProductDto.categoryID);
-
-      if (!cateID) {
-        throw new BadRequestException(
-          `Category with ID ${updateProductDto.categoryID} does not exist`,
-        );
-      }
+      cateID = await this.categoryService.findID(+updateProductDto.categoryID);
     }
 
-    console.log('Category:', cateID);
+    let suppID = findProId.supplierID;
+    if (updateProductDto.supplierID) {
+      suppID = await this.supplierService.findID(+updateProductDto.supplierID);
+    }
 
     // Tạo đối tượng Product
     const createProduct = this.productRepository.create({
@@ -116,6 +114,7 @@ export class ProductsService {
       importPrice: updateProductDto.importPrice,
       salePrice: updateProductDto.salePrice,
       categoryID: cateID,
+      supplierID: suppID,
     });
 
     return this.productRepository.save(createProduct);
@@ -123,9 +122,6 @@ export class ProductsService {
 
   async remove(id: number) {
     const pro = await this.findID(id);
-    if (!pro) {
-      throw new BadRequestException(` Cate with ID ${id} not found`);
-    }
     const result = await this.productRepository.remove(pro);
     return { status: HttpStatus.NOT_FOUND, 'đã xóa thành công': result };
   }

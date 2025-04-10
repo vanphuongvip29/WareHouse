@@ -45,7 +45,7 @@ export class CustomersService {
     });
 
     if (!findCus) {
-      throw new NotFoundException('Không tìm thấy KH');
+      throw new NotFoundException('Không tìm thấy khách hàng');
     }
     return findCus;
   }
@@ -79,7 +79,7 @@ export class CustomersService {
   async remove(id: number) {
     const cus = await this.customerRepository.findOneBy({ customerID: id });
     if (!cus) {
-      throw new BadRequestException(` Khách hàng ${id} not found`);
+      throw new BadRequestException(` Khách hàng ${id} không tìm thấy`);
     }
     const result = await this.customerRepository.remove(cus);
     return { status: HttpStatus.NOT_FOUND, 'đã xóa thành công': result };

@@ -39,16 +39,19 @@ export class ImportdetailwarehosueService {
   }
 
   async findAll() {
-    return await this.importDetailRepository.find();
+    return await this.importDetailRepository.find({
+      relations: ['productID', 'importID'],
+    });
   }
 
   async findID(id: number) {
     const findImportDetail = await this.importDetailRepository.findOne({
       where: { importDetailID: id },
+      relations: ['productID', 'importID'],
     });
 
     if (!findImportDetail) {
-      throw new BadGatewayException('không tìm thấy');
+      throw new BadGatewayException('Không tìm thấy nhập kho chi tiết');
     }
 
     return findImportDetail;
@@ -87,9 +90,7 @@ export class ImportdetailwarehosueService {
 
   async remove(id: number) {
     const importDetail = await this.findID(id);
-    if (!importDetail) {
-      throw new BadRequestException(`không tồn tại `);
-    }
+
     const result = await this.importDetailRepository.remove(importDetail);
     return result;
   }

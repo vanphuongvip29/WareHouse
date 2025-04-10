@@ -35,6 +35,7 @@ export class ImportdetailwarehosueController {
   }
 
   @Get(':id')
+  @Public()
   findOne(@Param('id') id: string) {
     return this.importdetailwarehosueService.findID(+id);
   }

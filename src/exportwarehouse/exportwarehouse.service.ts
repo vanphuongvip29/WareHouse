@@ -42,7 +42,7 @@ export class ExportwarehouseService {
     });
 
     if (!findExp) {
-      throw new NotFoundException('Không tìm thấy xuất');
+      throw new NotFoundException('Không tìm thấy phiếu xuất');
     }
     return findExp;
   }
@@ -69,10 +69,8 @@ export class ExportwarehouseService {
   }
 
   async remove(id: number) {
-    const exp = await this.exportRepository.findOneBy({ exportID: id });
-    if (!exp) {
-      throw new BadRequestException(`xuất ${id} not found`);
-    }
+    const exp = await this.findID(id);
+
     const result = await this.exportRepository.remove(exp);
     return { status: HttpStatus.NOT_FOUND, 'đã xóa thành công': result };
   }

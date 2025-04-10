@@ -33,7 +33,7 @@ export class ImportwarehouseService {
   }
 
   async findAll() {
-    return await this.importRepository.find();
+    return await this.importRepository.find({ relations: ['supplierID'] });
   }
 
   async findID(id: number) {
@@ -52,10 +52,6 @@ export class ImportwarehouseService {
   async update(id: number, updateImportwarehouseDto: UpdateImportwarehouseDto) {
     const findImport = await this.findID(id);
 
-    if (!findImport) {
-      throw new NotFoundException('Không tìm thấy tồn kho để cập nhật');
-    }
-
     let supID = findImport.supplierID; // Giữ nguyên nhà cung cấp hiện tại nếu không có supplierID mới
 
     // Kiểm tra nếu supplierID được cung cấp
@@ -63,17 +59,12 @@ export class ImportwarehouseService {
       supID = await this.suppliersService.findID(
         +updateImportwarehouseDto.supplierID,
       );
-
-      if (!supID) {
-        throw new BadRequestException(
-          `nhà cung cấp with ID ${updateImportwarehouseDto.supplierID} does not exist`,
-        );
-      }
     }
 
     const createProduct = await this.importRepository.create({
       ...findImport,
       totalAmount: updateImportwarehouseDto.totalAmount,
+      importDate: updateImportwarehouseDto.importDate,
       supplierID: supID,
     });
 
@@ -82,9 +73,7 @@ export class ImportwarehouseService {
 
   async remove(id: number) {
     const importWarehous = await this.findID(id);
-    if (!importWarehous) {
-      throw new BadRequestException(`nhập khô không tồn tại `);
-    }
+
     const result = await this.importRepository.remove(importWarehous);
     return result;
   }

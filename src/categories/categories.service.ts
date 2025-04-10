@@ -29,7 +29,7 @@ export class CategoriesService {
 
     if (isNameExist) {
       throw new BadRequestException(
-        `Category Name đã tồn tại: ${createCategoryDto.categoryName}`,
+        `Tên danh mục đã tồn tại: ${createCategoryDto.categoryName}`,
       );
     }
 
@@ -41,13 +41,13 @@ export class CategoriesService {
     return cate;
   }
 
-  async findOne(id: number) {
+  async findID(id: number) {
     const findCate = await this.categoryRepository.findOne({
       where: { categoryID: id },
       relations: ['productID'],
     });
 
-    if (!findCate) throw new BadGatewayException('không tìm thấy category id');
+    if (!findCate) throw new BadGatewayException('Không tìm thấy danh mục');
 
     return findCate;
   }
@@ -58,7 +58,7 @@ export class CategoriesService {
     });
 
     if (!findCate) {
-      throw new BadRequestException('không tìm thấy category ');
+      throw new BadRequestException('Không tìm thấy danh mục ');
     }
 
     //check name
@@ -67,7 +67,7 @@ export class CategoriesService {
 
     if (isNameExist) {
       throw new BadRequestException(
-        `Category Name đã tồn tại bạn vui lòng cập nhật tên khác: ${updateCategoryDto.categoryName}`,
+        `Danh mục đã tồn tại bạn vui lòng cập nhật tên khác: ${updateCategoryDto.categoryName}`,
       );
     }
 
@@ -83,7 +83,7 @@ export class CategoriesService {
   async remove(id: number) {
     const cate = await this.categoryRepository.findOneBy({ categoryID: id });
     if (!cate) {
-      throw new BadRequestException(` Cate with ID ${id} not found`);
+      throw new BadRequestException(`Danh mục ${id} không tìm thấy`);
     }
     const result = await this.categoryRepository.remove(cate);
     return { status: HttpStatus.NOT_FOUND, 'đã xóa thành công': result };
