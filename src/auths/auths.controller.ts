@@ -83,4 +83,11 @@ export class AuthsController {
     });
     return 'OKi';
   }
+
+  // @UseGuards(AuthGuard('jwt')) // Sử dụng AuthGuard với strategy 'jwt' để bảo vệ endpoint này
+  @Get('me')
+  async getMe(@Request() req) {
+    // `req.user` sẽ chứa thông tin người dùng đã được xác thực từ JwtStrategy
+    return { "user": req.user };
+  }
 }
