@@ -1,0 +1,31 @@
+{
+    "name": "@types/mjml-core",
+    "version": "4.15.1",
+    "description": "TypeScript definitions for mjml-core",
+    "homepage": "https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/mjml-core",
+    "license": "MIT",
+    "contributors": [
+        {
+            "name": "Ian Edington      ",
+            "githubUsername": "IanEdington",
+            "url": "https://github.com/IanEdington"
+        },
+        {
+            "name": "Ryan Burr         ",
+            "githubUsername": "ryanburr",
+            "url": "https://github.com/ryanburr"
+        }
+    ],
+    "main": "",
+    "types": "index.d.ts",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/DefinitelyTyped/DefinitelyTyped.git",
+        "directory": "types/mjml-core"
+    },
+    "scripts": {},
+    "dependencies": {},
+    "peerDependencies": {},
+    "typesPublisherContentHash": "3174c6ddc83ca59cc26e724e77dcf37d4a526d86b45d2822a8b93e99b6d08954",
+    "typeScriptVersion": "4.8"
+}
