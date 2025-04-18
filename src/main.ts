@@ -29,6 +29,8 @@ async function bootstrap() {
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('swagger', app, documentFactory);
 
+  app.enableCors(); 
+
   await app.listen(port);
   console.log(`Server listening at http://localhost:${port}`);
 }

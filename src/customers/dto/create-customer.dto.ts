@@ -9,4 +9,7 @@ export class CreateCustomerDto {
 
   @IsNotEmpty({ message: 'Số điện thoại không được trống' })
   phone: string;
+
+  @IsOptional()
+  status: string;
 }

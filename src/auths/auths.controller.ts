@@ -21,14 +21,14 @@ import { JwtAuthGuard } from './passport/jwt-auth.guard';
 import { Public } from 'src/decorator/customize';
 import { MailerService } from '@nestjs-modules/mailer';
 
-@Controller('auths')
+@Controller('auth')
 export class AuthsController {
   constructor(
     private readonly authsService: AuthsService,
     private readonly mailerService: MailerService,
   ) {}
 
-  @Post('login')
+  @Post('sign-in')
   @Public()
   @UseGuards(LocalAuthGuard)
   login(@Request() req) {
