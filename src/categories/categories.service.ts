@@ -41,6 +41,10 @@ export class CategoriesService {
     return cate;
   }
 
+  async queryBuilder(alias: string) {
+    return this.categoryRepository.createQueryBuilder(alias);
+  }
+
   async findID(id: number) {
     const findCate = await this.categoryRepository.findOne({
       where: { categoryID: id },
