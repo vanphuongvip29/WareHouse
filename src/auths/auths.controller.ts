@@ -21,14 +21,14 @@ import { JwtAuthGuard } from './passport/jwt-auth.guard';
 import { Public } from 'src/decorator/customize';
 import { MailerService } from '@nestjs-modules/mailer';
 
-@Controller('auths')
+@Controller('auth')
 export class AuthsController {
   constructor(
     private readonly authsService: AuthsService,
     private readonly mailerService: MailerService,
   ) {}
 
-  @Post('login')
+  @Post('sign-in')
   @Public()
   @UseGuards(LocalAuthGuard)
   login(@Request() req) {
@@ -82,5 +82,12 @@ export class AuthsController {
       },
     });
     return 'OKi';
+  }
+
+  // @UseGuards(AuthGuard('jwt')) // Sử dụng AuthGuard với strategy 'jwt' để bảo vệ endpoint này
+  @Get('me')
+  async getMe(@Request() req) {
+    // `req.user` sẽ chứa thông tin người dùng đã được xác thực từ JwtStrategy
+    return { "user": req.user };
   }
 }

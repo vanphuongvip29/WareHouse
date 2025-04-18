@@ -15,6 +15,9 @@ export class Customer {
   @Column()
   phone: string;
 
+  @Column({ default: 'Silver' })
+  status: string;
+
   @OneToMany(() => ExportWarehouse, (exportEntity) => exportEntity.customerID)
   exportID: ExportWarehouse[];
 }

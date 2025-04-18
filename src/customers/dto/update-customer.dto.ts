@@ -8,4 +8,7 @@ export class UpdateCustomerDto {
   address: string;
   @IsOptional()
   phone: string;
+
+  @IsOptional()
+  status: string;
 }
