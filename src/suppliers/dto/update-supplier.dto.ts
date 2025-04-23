@@ -9,4 +9,10 @@ export class UpdateSupplierDto {
 
   @IsOptional()
   phone: string;
+
+  @IsOptional()
+  email: string;
+
+  @IsOptional()
+  webstie: string;
 }

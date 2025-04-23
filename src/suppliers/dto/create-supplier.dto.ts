@@ -10,4 +10,10 @@ export class CreateSupplierDto {
 
   @IsNotEmpty({ message: 'Số điện thoại được để trống' })
   phone: string;
+
+  @IsString()
+  email: string;
+
+  @IsString()
+  website: string;
 }

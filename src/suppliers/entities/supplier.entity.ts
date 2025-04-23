@@ -16,6 +16,12 @@ export class Supplier {
   @Column()
   phone: string;
 
+  @Column()
+  email: string;
+
+  @Column()
+  website: string;
+
   @OneToMany(() => Product, (product) => product.supplierID)
   productID: Product[];
 

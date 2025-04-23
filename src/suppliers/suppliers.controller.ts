@@ -6,11 +6,13 @@ import {
   Patch,
   Param,
   Delete,
+  Req,
 } from '@nestjs/common';
 import { SuppliersService } from './suppliers.service';
 import { CreateSupplierDto } from './dto/create-supplier.dto';
 import { UpdateSupplierDto } from './dto/update-supplier.dto';
 import { Public } from 'src/decorator/customize';
+import { Request } from 'express';
 
 @Controller('suppliers')
 export class SuppliersController {
@@ -24,8 +26,33 @@ export class SuppliersController {
 
   @Get()
   @Public()
-  findAll() {
-    return this.suppliersService.findAll();
+  async findAll(@Req() req: Request) {
+    const builder = await this.suppliersService.queryBuilder('suppliers');
+
+    if (req.query.s) {
+      builder.where('suppliers.supplierName LIKE :s', {
+        s: `%${req.query.s}%`,
+      });
+    }
+
+    const sort: any = req.query.sort;
+
+    if (sort) {
+      builder.orderBy('customers.categoryName', sort.toUpperCase());
+    }
+
+    const page: number = parseInt(req.query.page as any) || 1;
+    const perPage = 5;
+    const total = await builder.getCount();
+
+    builder.offset((page - 1) * perPage).limit(perPage);
+
+    return {
+      suppliers: await builder.getMany(),
+      total,
+      page,
+      last_page: Math.ceil(total / perPage),
+    };
   }
 
   @Get(':id')

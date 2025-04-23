@@ -39,6 +39,10 @@ export class CustomersService {
     return await this.customerRepository.find();
   }
 
+  async queryBuilder(alias: string) {
+    return this.customerRepository.createQueryBuilder(alias);
+  }
+
   async findID(id: number) {
     const findCus = await this.customerRepository.findOne({
       where: { customerID: id },

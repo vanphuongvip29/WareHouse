@@ -37,6 +37,10 @@ export class SuppliersService {
     return this.supplierRepository.find();
   }
 
+  async queryBuilder(alias: string) {
+    return this.supplierRepository.createQueryBuilder(alias);
+  }
+
   async findID(id: number) {
     const findSupp = await this.supplierRepository.findOne({
       where: { supplierID: id },
