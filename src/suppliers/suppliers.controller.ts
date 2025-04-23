@@ -7,6 +7,10 @@ import {
   Param,
   Delete,
   Req,
+  Put,
+  HttpException,
+  HttpStatus,
+  HttpCode,
 } from '@nestjs/common';
 import { SuppliersService } from './suppliers.service';
 import { CreateSupplierDto } from './dto/create-supplier.dto';
@@ -41,17 +45,17 @@ export class SuppliersController {
       builder.orderBy('customers.categoryName', sort.toUpperCase());
     }
 
-    const page: number = parseInt(req.query.page as any) || 1;
-    const perPage = 5;
+    // const page: number = parseInt(req.query.page as any) || 1;
+    // const perPage = 10;
     const total = await builder.getCount();
 
-    builder.offset((page - 1) * perPage).limit(perPage);
+    // builder.offset((page - 1) * perPage).limit(perPage);
 
     return {
       suppliers: await builder.getMany(),
       total,
-      page,
-      last_page: Math.ceil(total / perPage),
+      // page,
+      // last_page: Math.ceil(total / perPage),
     };
   }
 
@@ -70,9 +74,25 @@ export class SuppliersController {
     return this.suppliersService.update(+id, updateSupplierDto);
   }
 
-  @Delete(':id')
+  @Put(':id')
   @Public()
-  remove(@Param('id') id: string) {
-    return this.suppliersService.remove(+id);
+  updatePut(
+    @Param('id') id: string,
+    @Body() updateSupplierDto: UpdateSupplierDto,
+  ) {
+    return this.suppliersService.update(+id, updateSupplierDto);
+  }
+
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Public()
+  async remove(@Param('id') id: string) {
+    const isDeleted = await this.suppliersService.remove(+id);
+    if (!isDeleted) {
+      throw new HttpException(
+        `Supplier with ID ${id} not found`,
+        HttpStatus.NOT_FOUND,
+      );
+    }
   }
 }

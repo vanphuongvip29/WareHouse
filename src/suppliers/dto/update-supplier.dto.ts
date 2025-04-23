@@ -14,5 +14,5 @@ export class UpdateSupplierDto {
   email: string;
 
   @IsOptional()
-  webstie: string;
+  website: string;
 }
