@@ -5,7 +5,11 @@ export class UpdateCustomerDto {
   customerName: string;
 
   @IsOptional()
+  email: string;
+
+  @IsOptional()
   address: string;
+
   @IsOptional()
   phone: string;
 

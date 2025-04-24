@@ -7,6 +7,9 @@ import {
   Param,
   Delete,
   Req,
+  HttpCode,
+  HttpStatus,
+  HttpException,
 } from '@nestjs/common';
 import { CustomersService } from './customers.service';
 import { CreateCustomerDto } from './dto/create-customer.dto';
@@ -41,17 +44,17 @@ export class CustomersController {
       builder.orderBy('customers.categoryName', sort.toUpperCase());
     }
 
-    const page: number = parseInt(req.query.page as any) || 1;
-    const perPage = 5;
+    // const page: number = parseInt(req.query.page as any) || 1;
+    // const perPage = 5;
     const total = await builder.getCount();
 
-    builder.offset((page - 1) * perPage).limit(perPage);
+    // builder.offset((page - 1) * perPage).limit(perPage);
 
     return {
       customers: await builder.getMany(),
       total,
-      page,
-      last_page: Math.ceil(total / perPage),
+      // page,
+      // last_page: Math.ceil(total / perPage),
     };
   }
 
@@ -71,8 +74,15 @@ export class CustomersController {
   }
 
   @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
   @Public()
-  remove(@Param('id') id: string) {
-    return this.customersService.remove(+id);
+  async remove(@Param('id') id: string) {
+    const isDeleted = await this.customersService.remove(+id);
+    if (!isDeleted) {
+      throw new HttpException(
+        `Supplier with ID ${id} not found`,
+        HttpStatus.NOT_FOUND,
+      );
+    }
   }
 }

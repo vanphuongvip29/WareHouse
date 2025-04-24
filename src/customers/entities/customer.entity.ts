@@ -15,6 +15,9 @@ export class Customer {
   @Column()
   phone: string;
 
+  @Column()
+  email: string;
+
   @Column({ default: 'Silver' })
   status: string;
 
