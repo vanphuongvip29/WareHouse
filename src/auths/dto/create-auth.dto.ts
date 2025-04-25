@@ -5,7 +5,7 @@ export class CreateAuthDto {
   email: string;
 
   @IsNotEmpty({ message: 'password không được để trống' })
-  passWord: string;
+  password: string;
 
   @IsOptional()
   userName: string;

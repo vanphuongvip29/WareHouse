@@ -16,6 +16,7 @@ import {
   ApiOperation,
 } from '@nestjs/swagger';
 import { User } from './entities/user.entity';
+import { Public } from 'src/decorator/customize';
 
 @Controller('users')
 export class UsersController {
@@ -52,6 +53,7 @@ export class UsersController {
   }
 
   @Patch(':id')
+  @Public()
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.update(+id, updateUserDto);
   }

@@ -34,7 +34,7 @@ export class UsersService {
   }
 
   async create(createUserDto: CreateUserDto): Promise<UserResponseDto> {
-    const { userName, email, passWord, firstName, lastName } = createUserDto;
+    const { userName, email, password, firstName, lastName } = createUserDto;
 
     //check email
     const isExist = await this.checkEmailExists(email);
@@ -43,11 +43,11 @@ export class UsersService {
     }
 
     // hash password
-    const hashPass = await hashPasswordUtil(passWord);
+    const hashPass = await hashPasswordUtil(password);
     const user = await this.usersRepository.create({
       userName,
       email,
-      passWord: hashPass,
+      password: hashPass,
       firstName,
       lastName,
     });
@@ -81,9 +81,17 @@ export class UsersService {
     if (!user) {
       throw new NotFoundException(` User with ID ${id} not found`);
     }
+    const { password, firstName, lastName } = updateUserDto;
     // Toán tử spread (...) được sử dụng để sao chép tất cả các thuộc tính của user và updateUserDto vào một đối tượng mới.
     // Nếu có các thuộc tính trùng tên, các thuộc tính từ updateUserDto sẽ ghi đè các thuộc tính từ user.
-    return this.usersRepository.save({ ...user, ...updateUserDto });
+    const hashPass = await hashPasswordUtil(password);
+    const userUpdate = await this.usersRepository.create({
+      ...user,
+      password: hashPass,
+      firstName,
+      lastName,
+    });
+    return this.usersRepository.save(userUpdate);
   }
 
   async removeUser(id: number) {
@@ -96,7 +104,7 @@ export class UsersService {
   }
 
   async registerUser(registerDto: CreateAuthDto) {
-    const { userName, email, passWord, firstName, lastName } = registerDto;
+    const { userName, email, password, firstName, lastName } = registerDto;
 
     //check email
     const isExist = await this.checkEmailExists(email);
@@ -105,14 +113,14 @@ export class UsersService {
     }
 
     // hash password
-    const hashPass = await hashPasswordUtil(passWord);
+    const hashPass = await hashPasswordUtil(password);
 
     const codeId = uuidv4();
 
     const user = await this.usersRepository.save({
       userName,
       email,
-      passWord: hashPass,
+      password: hashPass,
       firstName,
       lastName,
       isActive: false,
@@ -211,7 +219,7 @@ export class UsersService {
 
     const isValidPassword = await comparePasswordUtil(
       changePassword.passWordOld,
-      user.passWord,
+      user.password,
     );
 
     if (!isValidPassword) {
