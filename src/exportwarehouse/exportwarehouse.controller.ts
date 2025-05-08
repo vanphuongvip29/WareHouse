@@ -6,6 +6,8 @@ import {
   Patch,
   Param,
   Delete,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import { ExportwarehouseService } from './exportwarehouse.service';
 import { CreateExportwarehouseDto } from './dto/create-exportwarehouse.dto';
@@ -26,8 +28,11 @@ export class ExportwarehouseController {
 
   @Get()
   @Public()
-  findAll() {
-    return this.exportwarehouseService.findAll();
+  async findAll() {
+    const data = await this.exportwarehouseService.findAll();
+    return {
+      exports: data,
+    };
   }
 
   @Get(':id')
@@ -47,6 +52,7 @@ export class ExportwarehouseController {
 
   @Delete(':id')
   @Public()
+  @HttpCode(HttpStatus.NO_CONTENT)
   remove(@Param('id') id: string) {
     return this.exportwarehouseService.remove(+id);
   }

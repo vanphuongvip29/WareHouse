@@ -33,7 +33,7 @@ export class ExportwarehouseService {
   }
 
   async findAll() {
-    return await this.exportRepository.find();
+    return await this.exportRepository.find({ relations: ['customerID'] });
   }
 
   async findID(id: number) {

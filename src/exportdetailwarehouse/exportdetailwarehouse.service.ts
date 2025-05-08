@@ -37,7 +37,9 @@ export class ExportdetailwarehouseService {
   }
 
   async findAll() {
-    return await this.exportDetailRepository.find();
+    return await this.exportDetailRepository.find({
+      relations: ['productID', 'exportID'],
+    });
   }
 
   async findID(id: number) {

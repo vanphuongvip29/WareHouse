@@ -1,4 +1,4 @@
-import { IsNotEmpty } from 'class-validator';
+import { IsDate, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { Supplier } from 'src/suppliers/entities/supplier.entity';
 
 export class CreateImportwarehouseDto {
@@ -7,4 +7,7 @@ export class CreateImportwarehouseDto {
 
   @IsNotEmpty({ message: 'tổng số lượng khồn được trống' })
   totalAmount: number;
+
+  @IsString()
+  importDate: string;
 }

@@ -6,6 +6,8 @@ import {
   Patch,
   Param,
   Delete,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -24,8 +26,11 @@ export class ProductsController {
 
   @Public()
   @Get()
-  findAll() {
-    return this.productsService.findAll();
+  async findAll() {
+    const dataCate = await this.productsService.findAll();
+    return {
+      products: dataCate,
+    };
   }
 
   @Public()
@@ -41,6 +46,7 @@ export class ProductsController {
   }
 
   @Public()
+  @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.productsService.remove(+id);

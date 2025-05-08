@@ -6,6 +6,8 @@ import {
   Patch,
   Param,
   Delete,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import { ImportdetailwarehosueService } from './importdetailwarehosue.service';
 import { CreateImportdetailwarehosueDto } from './dto/create-importdetailwarehosue.dto';
@@ -30,8 +32,11 @@ export class ImportdetailwarehosueController {
 
   @Get()
   @Public()
-  findAll() {
-    return this.importdetailwarehosueService.findAll();
+  async findAll() {
+    const data = await this.importdetailwarehosueService.findAll();
+    return {
+      importdeatils: data,
+    };
   }
 
   @Get(':id')
@@ -53,6 +58,7 @@ export class ImportdetailwarehosueController {
   }
 
   @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
   @Public()
   remove(@Param('id') id: string) {
     return this.importdetailwarehosueService.remove(+id);

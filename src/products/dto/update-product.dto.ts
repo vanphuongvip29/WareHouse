@@ -11,7 +11,7 @@ export class UpdateProductDto {
   description: string;
 
   @IsOptional()
-  @IsNumber()
+  @IsString()
   unit: string;
 
   @IsOptional()

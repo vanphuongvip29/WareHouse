@@ -10,7 +10,7 @@ export class CreateProductDto {
   @IsString()
   description: string;
 
-  @IsNumber()
+  @IsString()
   unit: string;
 
   @IsNumber()

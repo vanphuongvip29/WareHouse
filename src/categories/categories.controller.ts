@@ -7,6 +7,8 @@ import {
   Param,
   Delete,
   Req,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
@@ -41,17 +43,17 @@ export class CategoriesController {
       builder.orderBy('categories.categoryName', sort.toUpperCase());
     }
 
-    const page: number = parseInt(req.query.page as any) || 1;
-    const perPage = 2;
+    // const page: number = parseInt(req.query.page as any) || 1;
+    // const perPage = 2;
     const total = await builder.getCount();
 
-    builder.offset((page - 1) * perPage).limit(perPage);
+    // builder.offset((page - 1) * perPage).limit(perPage);
 
     return {
-      data: await builder.getMany(),
+      categories: await builder.getMany(),
       total,
-      page,
-      last_page: Math.ceil(total / perPage),
+      // page,
+      // last_page: Math.ceil(total / perPage),
     };
   }
 
@@ -71,6 +73,7 @@ export class CategoriesController {
   }
 
   @Public()
+  @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.categoriesService.remove(+id);

@@ -6,6 +6,8 @@ import {
   Patch,
   Param,
   Delete,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import { ImportwarehouseService } from './importwarehouse.service';
 import { CreateImportwarehouseDto } from './dto/create-importwarehouse.dto';
@@ -26,8 +28,11 @@ export class ImportwarehouseController {
 
   @Get()
   @Public()
-  findAll() {
-    return this.importwarehouseService.findAll();
+  async findAll() {
+    const dataImport = await this.importwarehouseService.findAll();
+    return {
+      imports: dataImport,
+    };
   }
 
   @Get(':id')
@@ -47,6 +52,7 @@ export class ImportwarehouseController {
 
   @Delete(':id')
   @Public()
+  @HttpCode(HttpStatus.NO_CONTENT)
   remove(@Param('id') id: string) {
     return this.importwarehouseService.remove(+id);
   }

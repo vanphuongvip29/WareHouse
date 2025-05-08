@@ -34,6 +34,7 @@ export class ImportwarehouseService {
 
   async findAll() {
     return await this.importRepository.find({ relations: ['supplierID'] });
+    // return await this.importRepository.find();
   }
 
   async findID(id: number) {

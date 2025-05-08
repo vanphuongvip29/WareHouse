@@ -14,7 +14,7 @@ export class ExportWarehouse {
   @PrimaryGeneratedColumn()
   exportID: number;
 
-  @Column()
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   exportDate: Date;
 
   @ManyToOne(() => Customer, (customer) => customer.exportID)
