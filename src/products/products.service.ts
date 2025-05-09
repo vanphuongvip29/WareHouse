@@ -57,13 +57,15 @@ export class ProductsService {
   }
 
   async findAll() {
-    return this.productRepository.find();
+    return this.productRepository.find({
+      relations: ['supplierID', 'categoryID'],
+    });
   }
 
   async findID(id: number) {
     const findPro = await this.productRepository.findOne({
       where: { productID: id },
-      relations: ['categoryID'],
+      relations: ['supplierID', 'categoryID'],
     });
 
     if (!findPro) {

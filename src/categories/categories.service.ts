@@ -66,15 +66,28 @@ export class CategoriesService {
     }
 
     //check name
-    const { categoryName } = updateCategoryDto;
-    const isNameExist = await this.checkNameCateExists(categoryName);
+    // const { categoryName } = updateCategoryDto;
+    // const isNameExist = await this.checkNameCateExists(categoryName);
 
-    if (isNameExist) {
-      throw new BadRequestException(
-        `Danh mục đã tồn tại bạn vui lòng cập nhật tên khác: ${updateCategoryDto.categoryName}`,
+    // if (isNameExist) {
+    //   throw new BadRequestException(
+    //     `Danh mục đã tồn tại bạn vui lòng cập nhật tên khác: ${updateCategoryDto.categoryName}`,
+    //   );
+    // }
+    if (
+      updateCategoryDto.categoryName &&
+      findCate.categoryName != updateCategoryDto.categoryName
+    ) {
+      const isNameExist = await this.checkNameCateExists(
+        updateCategoryDto.categoryName,
       );
-    }
 
+      if (isNameExist) {
+        throw new BadRequestException(
+          `Tên sản phẩm đã tồn tại bạn vui lòng cập nhật tên khác: ${updateCategoryDto.categoryName}`,
+        );
+      }
+    }
     const createCate = await this.categoryRepository.create({
       ...findCate,
       categoryName: updateCategoryDto.categoryName,

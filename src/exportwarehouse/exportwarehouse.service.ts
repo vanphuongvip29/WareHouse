@@ -39,6 +39,7 @@ export class ExportwarehouseService {
   async findID(id: number) {
     const findExp = await this.exportRepository.findOne({
       where: { exportID: id },
+      relations: ['customerID'],
     });
 
     if (!findExp) {

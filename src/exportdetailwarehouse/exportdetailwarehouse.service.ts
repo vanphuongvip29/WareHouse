@@ -45,6 +45,7 @@ export class ExportdetailwarehouseService {
   async findID(id: number) {
     const findExpDetail = await this.exportDetailRepository.findOne({
       where: { exportDetailID: id },
+      relations: ['productID', 'exportID'],
     });
 
     if (!findExpDetail) {
