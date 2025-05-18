@@ -10,3 +10,22 @@ export class UpdateExportwarehouseDto {
   @IsOptional()
   customerID: Customer;
 }
+
+export class UpdateDtoExport {
+  @IsOptional()
+  totalAmount: number;
+
+  @IsOptional()
+  exportDate: Date;
+
+  @IsOptional()
+  customerID: number;
+
+  @IsOptional()
+  products: {
+    exportDetailID?: number;
+    productID: number;
+    quantity: number;
+    salePrice: number;
+  }[];
+}

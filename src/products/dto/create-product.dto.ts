@@ -13,12 +13,6 @@ export class CreateProductDto {
   @IsString()
   unit: string;
 
-  @IsNumber()
-  importPrice: number;
-
-  @IsNumber()
-  salePrice: number;
-
   @IsNotEmpty({ message: 'categoryID không được để trống' })
   categoryID: Category;
 

@@ -1,4 +1,11 @@
-import { IsOptional } from 'class-validator';
+import { Type } from 'class-transformer';
+import {
+  ArrayNotEmpty,
+  IsArray,
+  IsOptional,
+  ValidateNested,
+} from 'class-validator';
+import { Importdetailwarehosue } from 'src/importdetailwarehosue/entities/importdetailwarehosue.entity';
 import { Supplier } from 'src/suppliers/entities/supplier.entity';
 
 export class UpdateImportwarehouseDto {
@@ -10,4 +17,20 @@ export class UpdateImportwarehouseDto {
 
   @IsOptional()
   importDate: string;
+}
+
+export class UpdateDto {
+  @IsOptional()
+  totalAmount: number;
+  @IsOptional()
+  importDate: string;
+  @IsOptional()
+  supplierID: number;
+  @IsOptional()
+  products: {
+    importDetailID?: number;
+    productID: number;
+    quantity: number;
+    importPrice: number;
+  }[];
 }

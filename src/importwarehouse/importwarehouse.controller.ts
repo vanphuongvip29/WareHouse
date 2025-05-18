@@ -8,11 +8,21 @@ import {
   Delete,
   HttpCode,
   HttpStatus,
+  Query,
+  Req,
+  Put,
 } from '@nestjs/common';
 import { ImportwarehouseService } from './importwarehouse.service';
-import { CreateImportwarehouseDto } from './dto/create-importwarehouse.dto';
-import { UpdateImportwarehouseDto } from './dto/update-importwarehouse.dto';
+import {
+  CreateImportwarehouseDto,
+  ImportWithDetails,
+} from './dto/create-importwarehouse.dto';
+import {
+  UpdateDto,
+  UpdateImportwarehouseDto,
+} from './dto/update-importwarehouse.dto';
 import { Public } from 'src/decorator/customize';
+import { Request } from 'express';
 
 @Controller('importwarehouse')
 export class ImportwarehouseController {
@@ -55,5 +65,38 @@ export class ImportwarehouseController {
   @HttpCode(HttpStatus.NO_CONTENT)
   remove(@Param('id') id: string) {
     return this.importwarehouseService.remove(+id);
+  }
+
+  @Get('detail/:id')
+  @Public()
+  findDetail(@Param('id') id: string) {
+    return this.importwarehouseService.findDetail(+id);
+  }
+
+  @Post('create-import-detail')
+  @Public()
+  async creatImportDetail(@Body() importWithDetails: ImportWithDetails) {
+    return this.importwarehouseService.createImportWithDetails(
+      importWithDetails,
+    );
+  }
+
+  @Patch('update-import-detail/:id')
+  @Public()
+  async updateImportDetail(
+    @Param('id') id: number,
+    @Body() updateImportDto: UpdateDto,
+  ) {
+    return this.importwarehouseService.updateImportWithDetails(
+      id,
+      updateImportDto,
+    );
+  }
+
+  @Delete('delete-import-detail/:id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Public()
+  async deleteImportWithDetails(@Param('id') id: number) {
+    return this.importwarehouseService.deleteImportWithDetails(id);
   }
 }

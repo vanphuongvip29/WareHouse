@@ -15,14 +15,6 @@ export class UpdateProductDto {
   unit: string;
 
   @IsOptional()
-  @IsNumber()
-  importPrice: number;
-
-  @IsOptional()
-  @IsNumber()
-  salePrice: number;
-
-  @IsOptional()
   categoryID: Category;
 
   @IsOptional()

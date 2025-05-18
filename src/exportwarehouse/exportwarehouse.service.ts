@@ -1,15 +1,24 @@
 import {
+  BadGatewayException,
   BadRequestException,
   HttpStatus,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { CreateExportwarehouseDto } from './dto/create-exportwarehouse.dto';
-import { UpdateExportwarehouseDto } from './dto/update-exportwarehouse.dto';
+import {
+  CreateExportwarehouseDto,
+  ExportWithDetails,
+} from './dto/create-exportwarehouse.dto';
+import {
+  UpdateDtoExport,
+  UpdateExportwarehouseDto,
+} from './dto/update-exportwarehouse.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ExportWarehouse } from './entities/exportwarehouse.entity';
 import { Repository } from 'typeorm';
 import { CustomersService } from 'src/customers/customers.service';
+import { ProductsService } from 'src/products/products.service';
+import { ExportDetailWarehouse } from 'src/exportdetailwarehouse/entities/exportdetailwarehouse.entity';
 
 @Injectable()
 export class ExportwarehouseService {
@@ -17,6 +26,9 @@ export class ExportwarehouseService {
     @InjectRepository(ExportWarehouse)
     private exportRepository: Repository<ExportWarehouse>,
     private customerService: CustomersService,
+    private productService: ProductsService,
+    @InjectRepository(ExportDetailWarehouse)
+    private exportDetailWarehouseRepository: Repository<ExportDetailWarehouse>,
   ) {}
 
   async create(createExportwarehouseDto: CreateExportwarehouseDto) {
@@ -33,7 +45,9 @@ export class ExportwarehouseService {
   }
 
   async findAll() {
-    return await this.exportRepository.find({ relations: ['customerID'] });
+    return await this.exportRepository.find({
+      relations: ['customerID', 'exportDetailID', 'exportDetailID.productID'],
+    });
   }
 
   async findID(id: number) {
@@ -74,5 +88,147 @@ export class ExportwarehouseService {
 
     const result = await this.exportRepository.remove(exp);
     return { status: HttpStatus.NOT_FOUND, 'đã xóa thành công': result };
+  }
+
+  async findExportDetail(id: number) {
+    const findexport = await this.exportRepository.findOne({
+      where: { exportID: id },
+      relations: ['customerID', 'exportDetailID', 'exportDetailID.productID'],
+    });
+
+    if (!findexport) {
+      throw new BadGatewayException('Không tìm thấy xuất kho');
+    }
+
+    return findexport;
+  }
+
+  async createExportWithDetail(exportWithDetails: ExportWithDetails) {
+    const { exportData, exportDetails } = exportWithDetails;
+    const queryRunner =
+      this.exportRepository.manager.connection.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      const customer = await this.customerService.findID(
+        +exportData.customerID,
+      );
+      const exportWare = this.exportRepository.create({
+        ...exportData,
+        customerID: customer,
+      });
+      const saveExport = await queryRunner.manager.save(exportWare);
+      const exportDetailsPromises = exportDetails.map(async (detail) => {
+        const products = await this.productService.findID(detail.productID);
+        const exportDetail = this.exportDetailWarehouseRepository.create({
+          quantity: detail.quantity,
+          salePrice: detail.salePrice,
+          exportID: saveExport,
+          productID: products,
+        });
+        return queryRunner.manager.save(exportDetail);
+      });
+      const allExportDetails = await Promise.all(exportDetailsPromises);
+      await queryRunner.commitTransaction();
+      return {
+        message: 'Export warehouse and details created successfully',
+        exportData: saveExport,
+        exportDetails: allExportDetails,
+      };
+    } catch (error) {
+      // Rollback transaction nếu có lỗi
+      await queryRunner.rollbackTransaction();
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+      throw new BadRequestException(
+        'Failed to create import warehouse and details: ' + error.message,
+      );
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
+  async updateExportWithDetails(id: number, updateDtoExport: UpdateDtoExport) {
+    const exportRecord = await this.exportRepository.findOne({
+      where: { exportID: id },
+      relations: ['exportDetailID'],
+    });
+
+    if (!exportRecord) throw new NotFoundException('Không tìm thấy phiếu xuất');
+
+    exportRecord.customerID = { customerID: updateDtoExport.customerID } as any;
+    exportRecord.totalAmount = updateDtoExport.totalAmount;
+    exportRecord.exportDate = updateDtoExport.exportDate;
+
+    // 2. Chuẩn bị danh sách các importDetailID từ client gửi lên
+    const incomingDetailIDs = updateDtoExport.products
+      .filter((p) => p.exportDetailID)
+      .map((p) => p.exportDetailID);
+
+    // 3. Xóa các chi tiết không còn trong danh sách mới
+    const toDelete = exportRecord.exportDetailID.filter(
+      (d) => !incomingDetailIDs.includes(d.exportDetailID),
+    );
+    for (const d of toDelete) {
+      await this.exportDetailWarehouseRepository.delete(d.exportDetailID);
+    }
+
+    // 4. Xử lý cập nhật hoặc tạo mới
+    const updatedDetails: ExportDetailWarehouse[] = [];
+
+    for (const product of updateDtoExport.products) {
+      if (product.exportDetailID) {
+        // Cập nhật chi tiết đã tồn tại
+        const existing = await this.exportDetailWarehouseRepository.findOneBy({
+          exportDetailID: product.exportDetailID,
+        });
+
+        if (existing) {
+          existing.quantity = product.quantity;
+          existing.salePrice = product.salePrice;
+          existing.productID = { productID: product.productID } as any;
+          await this.exportDetailWarehouseRepository.save(existing);
+          updatedDetails.push(existing);
+        }
+      } else {
+        // Tạo chi tiết mới
+        const newDetail = this.exportDetailWarehouseRepository.create({
+          quantity: product.quantity,
+          salePrice: product.salePrice,
+          productID: { productID: product.productID } as any,
+          exportID: { exportID: id },
+        });
+        await this.exportDetailWarehouseRepository.save(newDetail);
+        updatedDetails.push(newDetail);
+      }
+    }
+    exportRecord.exportDetailID = updatedDetails;
+    await this.exportRepository.save(exportRecord);
+
+    return { message: 'Cập nhật thành công' };
+  }
+
+  async deleteExportWithDetails(id: number) {
+    // 1. Tìm phiếu nhập và các chi tiết liên quan
+    const exportRecord = await this.exportRepository.findOne({
+      where: { exportID: id },
+      relations: ['exportDetailID'],
+    });
+
+    if (!exportRecord) throw new NotFoundException('Không tìm thấy phiếu nhập');
+
+    // 2. Lấy danh sách chi tiết cần xóa
+    const detailIDs = exportRecord.exportDetailID.map((d) => d.exportDetailID);
+
+    // 3. Xóa chi tiết trước (nếu có)
+    if (detailIDs.length > 0) {
+      await this.exportDetailWarehouseRepository.delete(detailIDs);
+    }
+
+    // 4. Xóa phiếu nhập chính
+    await this.exportRepository.delete(id);
+
+    return { message: 'Xóa phiếu nhập và chi tiết thành công' };
   }
 }

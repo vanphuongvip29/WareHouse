@@ -27,6 +27,7 @@ export class Importwarehouse {
   @OneToMany(
     () => Importdetailwarehosue,
     (importDetailWarehosue) => importDetailWarehosue.importID,
+    { cascade: true, onDelete: 'CASCADE' },
   )
   importDetailWarehosueID: Importdetailwarehosue[];
 }

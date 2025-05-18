@@ -25,12 +25,6 @@ export class Product {
   @Column()
   unit: string;
 
-  @Column()
-  importPrice: number;
-
-  @Column()
-  salePrice: number;
-
   @ManyToOne(() => Category, (category) => category.productID)
   @JoinColumn({ name: 'categoryID' })
   categoryID: Category;

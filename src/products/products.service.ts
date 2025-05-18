@@ -113,8 +113,8 @@ export class ProductsService {
       productName: updateProductDto.productName,
       description: updateProductDto.description,
       unit: updateProductDto.unit,
-      importPrice: updateProductDto.importPrice,
-      salePrice: updateProductDto.salePrice,
+      // importPrice: updateProductDto.importPrice,
+      // salePrice: updateProductDto.salePrice,
       categoryID: cateID,
       supplierID: suppID,
     });
