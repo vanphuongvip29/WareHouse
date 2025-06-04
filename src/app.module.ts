@@ -25,6 +25,8 @@ import { ExportWarehouse } from './exportwarehouse/entities/exportwarehouse.enti
 import { ExportDetailWarehouse } from './exportdetailwarehouse/entities/exportdetailwarehouse.entity';
 import { Customer } from './customers/entities/customer.entity';
 import { Inventory } from './inventory/entities/inventory.entity';
+import { QRModule } from './banking/qr.module';
+import { EventsGateway } from './events/events.gateway';
 
 @Module({
   imports: [
@@ -99,6 +101,7 @@ import { Inventory } from './inventory/entities/inventory.entity';
     ExportdetailwarehouseModule,
     CustomersModule,
     InventoryModule,
+    QRModule,
   ],
   controllers: [AppController],
   providers: [
@@ -107,6 +110,7 @@ import { Inventory } from './inventory/entities/inventory.entity';
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
     },
+    EventsGateway,
   ],
 })
 export class AppModule {}

@@ -55,6 +55,9 @@ export class ProductsService {
 
     return this.productRepository.save(createProduct);
   }
+  async queryBuilder(alias: string) {
+    return this.productRepository.createQueryBuilder(alias);
+  }
 
   async findAll() {
     return this.productRepository.find({

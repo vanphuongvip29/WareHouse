@@ -8,6 +8,7 @@ import {
   Delete,
   HttpCode,
   HttpStatus,
+  BadRequestException,
 } from '@nestjs/common';
 import { ExportwarehouseService } from './exportwarehouse.service';
 import {
@@ -15,6 +16,7 @@ import {
   ExportWithDetails,
 } from './dto/create-exportwarehouse.dto';
 import {
+  CkeckBanking,
   UpdateDtoExport,
   UpdateExportwarehouseDto,
 } from './dto/update-exportwarehouse.dto';
@@ -25,6 +27,12 @@ export class ExportwarehouseController {
   constructor(
     private readonly exportwarehouseService: ExportwarehouseService,
   ) {}
+
+  @Get('export-stats')
+  @Public()
+  async getImportStats() {
+    return await this.exportwarehouseService.getDailyExportStats();
+  }
 
   @Post()
   @Public()
@@ -94,5 +102,41 @@ export class ExportwarehouseController {
   @Public()
   async deleteExportWithDetails(@Param('id') id: number) {
     return this.exportwarehouseService.deleteExportWithDetails(id);
+  }
+
+  // @Public()
+  // @Post('check-banking')
+  // async checkCode(@Body() ckeckBanking: CkeckBanking) {
+  //   return this.exportwarehouseService.handleCheckBanking(ckeckBanking);
+  // }
+
+  @Public()
+  @Post('check-banking')
+  parseTransaction(@Body('notification') notification: any) {
+    if (typeof notification !== 'string') {
+      throw new BadRequestException('notification must be a string');
+    }
+
+    const amountRegex = /\+ ([\d,]+)/;
+    const transactionRegex = /GD: (.+?) \d{6}-\d{6}/;
+
+    const amountMatch = notification.match(amountRegex);
+    const transactionMatch = notification.match(transactionRegex);
+
+    const amount = amountMatch
+      ? parseInt(amountMatch[1].replace(/,/g, ''), 10)
+      : 0;
+    const transactionContent = transactionMatch
+      ? transactionMatch[1].trim()
+      : '';
+
+    // return {
+    //   amount,
+    //   transactionContent,
+    // };
+    return this.exportwarehouseService.handleCheckBanking(
+      amount,
+      transactionContent,
+    );
   }
 }

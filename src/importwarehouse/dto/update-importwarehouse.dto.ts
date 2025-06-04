@@ -23,7 +23,7 @@ export class UpdateDto {
   @IsOptional()
   totalAmount: number;
   @IsOptional()
-  importDate: string;
+  importDate: Date;
   @IsOptional()
   supplierID: number;
   @IsOptional()

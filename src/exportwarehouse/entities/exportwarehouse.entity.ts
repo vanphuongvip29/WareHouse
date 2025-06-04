@@ -9,6 +9,13 @@ import {
   JoinColumn,
 } from 'typeorm';
 
+export enum ExportStatus {
+  Paid = 'Paid',
+  Pending = 'Pending',
+  Overdue = 'Overdue',
+  Draft = 'Draft',
+}
+
 @Entity()
 export class ExportWarehouse {
   @PrimaryGeneratedColumn()
@@ -23,6 +30,17 @@ export class ExportWarehouse {
 
   @Column()
   totalAmount: number;
+
+  // Thêm trường status với enum
+  @Column({
+    type: 'enum',
+    enum: ExportStatus,
+    default: ExportStatus.Pending,
+  })
+  status: ExportStatus;
+
+  @Column({ nullable: true })
+  code: string;
 
   @OneToMany(
     () => ExportDetailWarehouse,

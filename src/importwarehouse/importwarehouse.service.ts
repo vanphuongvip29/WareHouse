@@ -14,7 +14,7 @@ import {
 } from './dto/update-importwarehouse.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Importwarehouse } from './entities/importwarehouse.entity';
-import { In, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { SuppliersService } from 'src/suppliers/suppliers.service';
 import { Product } from 'src/products/entities/product.entity';
 import { Importdetailwarehosue } from 'src/importdetailwarehosue/entities/importdetailwarehosue.entity';
@@ -269,5 +269,29 @@ export class ImportwarehouseService {
     await this.importRepository.delete(id);
 
     return { message: 'Xóa phiếu nhập và chi tiết thành công' };
+  }
+
+  async getDailyImportStats() {
+    // console.log('Call getDailyImportStats');
+    try {
+      const result = await this.importRepository
+        .createQueryBuilder('importwarehouse')
+        .select("DATE_FORMAT(importwarehouse.importDate, '%Y-%m')", 'month')
+        .addSelect('SUM(importwarehouse.totalAmount)', 'total')
+        .groupBy('month')
+        .orderBy('month')
+        .getRawMany();
+
+      // console.log('Stats result:', result);
+      // return result.map((row) => ({
+      //   date: row.month,
+      //   total: Number(row.total),
+      // }));
+      return result;
+    } catch (error) {
+      // Handle any potential errors here
+      console.error('Error fetching total imports by date:', error);
+      throw error;
+    }
   }
 }

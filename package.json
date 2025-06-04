@@ -27,8 +27,10 @@
     "@nestjs/mapped-types": "*",
     "@nestjs/passport": "^11.0.5",
     "@nestjs/platform-express": "^11.0.1",
+    "@nestjs/platform-socket.io": "^11.1.2",
     "@nestjs/swagger": "^11.0.6",
     "@nestjs/typeorm": "^11.0.0",
+    "@nestjs/websockets": "^11.1.2",
     "@types/bcrypt": "^5.0.2",
     "bcrypt": "5.1.1",
     "class-transformer": "^0.5.1",
@@ -40,10 +42,13 @@
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",
+    "qrcode": "^1.5.4",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
+    "socket.io": "^4.8.1",
     "typeorm": "^0.3.21",
-    "uuid": "^11.1.0"
+    "uuid": "^11.1.0",
+    "vietqr": "^1.1.9"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",

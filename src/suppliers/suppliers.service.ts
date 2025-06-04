@@ -8,12 +8,14 @@ import { UpdateSupplierDto } from './dto/update-supplier.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Supplier } from './entities/supplier.entity';
 import { Repository } from 'typeorm';
+import { EventsGateway } from 'src/events/events.gateway';
 
 @Injectable()
 export class SuppliersService {
   constructor(
     @InjectRepository(Supplier)
     private supplierRepository: Repository<Supplier>,
+    private readonly eventsGateway: EventsGateway,
   ) {}
   async checkSupplierName(name: string) {
     return await this.supplierRepository.exists({
@@ -30,7 +32,14 @@ export class SuppliersService {
       throw new BadRequestException('Tên nhà cung cấp đã tồn tại');
     }
 
-    return await this.supplierRepository.save(createSupplierDto);
+    const savedSupplier = await this.supplierRepository.save(createSupplierDto);
+
+    this.eventsGateway.emitMysqlDataChanged({
+      message: 'Dữ liệu items đã thay đổi!',
+      data: savedSupplier,
+    });
+
+    return savedSupplier;
   }
 
   findAll() {
@@ -76,14 +85,31 @@ export class SuppliersService {
       }
     }
 
-    return await this.supplierRepository.save({
+    const updateSupplier = await this.supplierRepository.save({
       ...findSupp,
       ...updateSupplierDto,
     });
+
+    this.eventsGateway.emitMysqlDataChanged({
+      message: `Dữ liệu nhà cung cấp ID ${id} đã thay đổi!`,
+      id: id,
+      action: updateSupplier,
+    });
+
+    return updateSupplier;
   }
 
   async remove(id: number) {
     const findSup = await this.findID(id);
-    return await this.supplierRepository.remove(findSup);
+    const deleted = await this.supplierRepository.remove(findSup);
+
+    // Emit sự kiện sau khi xoá thành công
+    this.eventsGateway.emitMysqlDataChanged({
+      message: `Supplier ID ${id} đã bị xoá`,
+      id,
+      action: 'delete',
+    });
+
+    return deleted;
   }
 }

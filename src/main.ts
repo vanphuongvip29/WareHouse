@@ -29,7 +29,11 @@ async function bootstrap() {
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('swagger', app, documentFactory);
 
-  app.enableCors(); 
+  app.enableCors({
+    origin: 'http://localhost:8082', // Sửa lại thành chính xác origin của Next.js frontend
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+    credentials: true,
+  });
 
   await app.listen(port);
   console.log(`Server listening at http://localhost:${port}`);

@@ -22,13 +22,18 @@ import {
   UpdateImportwarehouseDto,
 } from './dto/update-importwarehouse.dto';
 import { Public } from 'src/decorator/customize';
-import { Request } from 'express';
 
 @Controller('importwarehouse')
 export class ImportwarehouseController {
   constructor(
     private readonly importwarehouseService: ImportwarehouseService,
   ) {}
+
+  @Get('import-stats')
+  @Public()
+  async getImportStats() {
+    return await this.importwarehouseService.getDailyImportStats();
+  }
 
   @Post()
   @Public()

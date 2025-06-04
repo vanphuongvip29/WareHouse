@@ -4,6 +4,7 @@ import {
   IsDateString,
   IsNotEmpty,
   IsNumber,
+  IsOptional,
 } from 'class-validator';
 import { Customer } from 'src/customers/entities/customer.entity';
 
@@ -16,9 +17,12 @@ export class CreateExportwarehouseDto {
 
   @IsNotEmpty({ message: 'Tên khách hàng không được trống' })
   customerID: Customer;
+
+  @IsOptional()
+  code: string;
 }
 
-export interface  ExportWithDetails {
+export interface ExportWithDetails {
   exportData: CreateExportwarehouseDto;
   exportDetails: CreateExportDetailWarehouseDto[];
 }

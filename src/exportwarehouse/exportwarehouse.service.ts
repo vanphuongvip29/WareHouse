@@ -10,15 +10,21 @@ import {
   ExportWithDetails,
 } from './dto/create-exportwarehouse.dto';
 import {
+  CkeckBanking,
   UpdateDtoExport,
   UpdateExportwarehouseDto,
 } from './dto/update-exportwarehouse.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ExportWarehouse } from './entities/exportwarehouse.entity';
+import {
+  ExportStatus,
+  ExportWarehouse,
+} from './entities/exportwarehouse.entity';
 import { Repository } from 'typeorm';
 import { CustomersService } from 'src/customers/customers.service';
 import { ProductsService } from 'src/products/products.service';
 import { ExportDetailWarehouse } from 'src/exportdetailwarehouse/entities/exportdetailwarehouse.entity';
+import { v4 as uuidv4 } from 'uuid';
+import { EventsGateway } from 'src/events/events.gateway';
 
 @Injectable()
 export class ExportwarehouseService {
@@ -29,18 +35,24 @@ export class ExportwarehouseService {
     private productService: ProductsService,
     @InjectRepository(ExportDetailWarehouse)
     private exportDetailWarehouseRepository: Repository<ExportDetailWarehouse>,
+
+    private readonly eventsGateway: EventsGateway,
   ) {}
 
   async create(createExportwarehouseDto: CreateExportwarehouseDto) {
     const findCustomer = await this.customerService.findID(
       +createExportwarehouseDto.customerID,
     );
-
+    const code = uuidv4();
+    // 2. Loại bỏ các dấu gạch ngang
+    const uuidWithoutHyphens = code.replace(/-/g, '');
     // Tạo đối tượng Product
-    const createExport = this.exportRepository.create({
+    const createExport = await this.exportRepository.create({
       ...createExportwarehouseDto,
+      code: uuidWithoutHyphens,
       customerID: findCustomer,
     });
+    console.log('create Export code', createExport);
     return await this.exportRepository.save(createExport);
   }
 
@@ -109,12 +121,18 @@ export class ExportwarehouseService {
       this.exportRepository.manager.connection.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
+
+    const code = uuidv4();
+    // 2. Loại bỏ các dấu gạch ngang
+    const uuidWithoutHyphens = code.replace(/-/g, '');
+
     try {
       const customer = await this.customerService.findID(
         +exportData.customerID,
       );
       const exportWare = this.exportRepository.create({
         ...exportData,
+        code: uuidWithoutHyphens,
         customerID: customer,
       });
       const saveExport = await queryRunner.manager.save(exportWare);
@@ -230,5 +248,50 @@ export class ExportwarehouseService {
     await this.exportRepository.delete(id);
 
     return { message: 'Xóa phiếu nhập và chi tiết thành công' };
+  }
+
+  async handleCheckBanking(amount: number, transactionContent: string) {
+    const exportBank = await this.exportRepository.findOne({
+      where: {
+        totalAmount: amount,
+        code: transactionContent,
+      },
+    });
+    if (!exportBank) {
+      throw new BadRequestException('Thông tin exportBank không tìm thấy');
+    }
+    const updateExport = await this.exportRepository.save({
+      ...exportBank,
+      status: ExportStatus.Paid,
+    });
+
+    this.eventsGateway.emitMysqlDataChanged({
+      message: `Bạn đã thanh toán thành công : ${amount}!`,
+      action: updateExport.status,
+    });
+    return updateExport;
+  }
+
+  async getDailyExportStats() {
+    try {
+      const result = await this.exportRepository
+        .createQueryBuilder('exportwarehouse')
+        .select("DATE_FORMAT(exportwarehouse.exportDate, '%Y-%m')", 'month')
+        .addSelect('SUM(exportwarehouse.totalAmount)', 'total')
+        .groupBy('month')
+        .orderBy('month')
+        .getRawMany();
+
+      // console.log('Stats result:', result);
+      // return result.map((row) => ({
+      //   date: row.month,
+      //   total: Number(row.total),
+      // }));
+      return result;
+    } catch (error) {
+      // Handle any potential errors here
+      console.error('Error fetching total imports by date:', error);
+      throw error;
+    }
   }
 }

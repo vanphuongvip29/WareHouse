@@ -29,3 +29,11 @@ export class UpdateDtoExport {
     salePrice: number;
   }[];
 }
+
+export class CkeckBanking {
+  @IsOptional()
+  totalAmount: number;
+
+  @IsOptional()
+  code: string;
+}
